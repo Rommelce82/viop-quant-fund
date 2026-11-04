@@ -1,0 +1,33 @@
+{
+  "title": "VİOP SABAH BAŞLATMA VE TABLO SENKRONİZASYONU RAPORU",
+  "timestamp": "2026-11-04T21:17:45.073504",
+  "status": "SUCCESS",
+  "contracts_universe": {
+    "total_contracts": 207,
+    "asset_categories_count": 4,
+    "underlyings_count": 63
+  },
+  "margins_table": {
+    "total_margins_tracked": 207,
+    "changed_margins_count": 0,
+    "changed_margins": []
+  },
+  "margin_call_table": {
+    "account_equity": 2000000.0,
+    "total_initial_margin": 0.0,
+    "total_maintenance_margin": 0.0,
+    "free_margin": 2000000.0,
+    "margin_ratio_pct": 999.0,
+    "margin_deficit_try": 0.0,
+    "status": "HEALTHY",
+    "check_type": "MORNING_STARTUP",
+    "timestamp": "2026-11-04 21:17:47.494826",
+    "liquidation_required": false,
+    "target_liquidation_symbol": null
+  },
+  "system_reflection": {
+    "reflected_count": 414,
+    "config_updated": true,
+    "state_file_updated": true
+  }
+}

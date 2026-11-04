@@ -1,0 +1,1530 @@
+{
+  "metadata": {
+    "system": "Autonomous VİOP Live Operator v4.2",
+    "synced_at": "2026-11-04T21:46:06.892938",
+    "mode": "100% AUTONOMOUS (ZERO MANUAL INTERVENTION)",
+    "delay_minutes": 15,
+    "supported_timeframes": [
+      "15m",
+      "120m",
+      "240m"
+    ],
+    "total_contracts": 63,
+    "total_nav": 2000000.0,
+    "free_margin": 2000000.0,
+    "open_positions_count": 0,
+    "executed_trades_this_cycle": 0
+  },
+  "macro": {
+    "status": "LIVE",
+    "usd_try": 49.936,
+    "eur_try": 56.1576,
+    "policy_rate_pct": 50.0,
+    "timestamp": "2026-11-04T21:46:17.336545"
+  },
+  "fintables_stream": {
+    "kap_disclosures": [],
+    "earnings_calendar": [],
+    "policy_news": [],
+    "status": "TOKEN_EXPIRED"
+  },
+  "ale_fund_nema": {
+    "annual_gross_rate": 0.48,
+    "daily_gross_rate": 0.001315,
+    "withholding_tax_pct": 0.175,
+    "daily_tax_rate": 0.00023,
+    "daily_net_rate": 0.001085,
+    "annual_net_rate": 0.396
+  },
+  "contracts": {
+    "F_THYAO": {
+      "ticker": "THYAO.IS",
+      "type": "EQUITY",
+      "last_price": 290.5,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 289.0,
+        "high": 291.5,
+        "low": 288.75,
+        "close": 290.5,
+        "volume": 22067293.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 287.75,
+        "high": 291.5,
+        "low": 286.75,
+        "close": 290.5,
+        "volume": 29126306.0
+      }
+    },
+    "F_AKBNK": {
+      "ticker": "AKBNK.IS",
+      "type": "EQUITY",
+      "last_price": 66.30000305175781,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 66.69999694824219,
+        "high": 67.69999694824219,
+        "low": 66.19999694824219,
+        "close": 66.30000305175781,
+        "volume": 38261499.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 67.0999984741211,
+        "high": 67.69999694824219,
+        "low": 66.19999694824219,
+        "close": 66.30000305175781,
+        "volume": 61565171.0
+      }
+    },
+    "F_GARAN": {
+      "ticker": "GARAN.IS",
+      "type": "EQUITY",
+      "last_price": 138.0,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 137.3000030517578,
+        "high": 138.8000030517578,
+        "low": 137.1999969482422,
+        "close": 138.0,
+        "volume": 6515801.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 137.6999969482422,
+        "high": 138.8000030517578,
+        "low": 136.89999389648438,
+        "close": 138.0,
+        "volume": 12123130.0
+      }
+    },
+    "F_ISCTR": {
+      "ticker": "ISCTR.IS",
+      "type": "EQUITY",
+      "last_price": 12.920000076293945,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 12.90999984741211,
+        "high": 13.050000190734863,
+        "low": 12.869999885559082,
+        "close": 12.920000076293945,
+        "volume": 139415313.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 12.960000038146973,
+        "high": 13.050000190734863,
+        "low": 12.850000381469727,
+        "close": 12.920000076293945,
+        "volume": 202451560.0
+      }
+    },
+    "F_YKBNK": {
+      "ticker": "YKBNK.IS",
+      "type": "EQUITY",
+      "last_price": 35.97999954223633,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 36.2599983215332,
+        "high": 36.7400016784668,
+        "low": 35.880001068115234,
+        "close": 35.97999954223633,
+        "volume": 90523701.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 36.63999938964844,
+        "high": 36.7400016784668,
+        "low": 35.880001068115234,
+        "close": 35.97999954223633,
+        "volume": 125925495.0
+      }
+    },
+    "F_VAKBN": {
+      "ticker": "VAKBN.IS",
+      "type": "EQUITY",
+      "last_price": 31.559999465942383,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 31.559999465942383,
+        "high": 31.940000534057617,
+        "low": 31.459999084472656,
+        "close": 31.559999465942383,
+        "volume": 5824023.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 31.639999389648438,
+        "high": 31.940000534057617,
+        "low": 31.440000534057617,
+        "close": 31.559999465942383,
+        "volume": 8238449.0
+      }
+    },
+    "F_HALKB": {
+      "ticker": "HALKB.IS",
+      "type": "EQUITY",
+      "last_price": 40.63999938964844,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 41.060001373291016,
+        "high": 41.560001373291016,
+        "low": 40.58000183105469,
+        "close": 40.63999938964844,
+        "volume": 8359530.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 41.7400016784668,
+        "high": 41.7599983215332,
+        "low": 40.58000183105469,
+        "close": 40.63999938964844,
+        "volume": 10953060.0
+      }
+    },
+    "F_TSKB": {
+      "ticker": "TSKB.IS",
+      "type": "EQUITY",
+      "last_price": 9.84000015258789,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 9.869999885559082,
+        "high": 9.989999771118164,
+        "low": 9.8100004196167,
+        "close": 9.84000015258789,
+        "volume": 9728324.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 9.850000381469727,
+        "high": 9.989999771118164,
+        "low": 9.779999732971191,
+        "close": 9.84000015258789,
+        "volume": 13064493.0
+      }
+    },
+    "F_EREGL": {
+      "ticker": "EREGL.IS",
+      "type": "EQUITY",
+      "last_price": 31.940000534057617,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 32.02000045776367,
+        "high": 32.34000015258789,
+        "low": 31.860000610351562,
+        "close": 31.940000534057617,
+        "volume": 21209081.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 32.279998779296875,
+        "high": 32.34000015258789,
+        "low": 31.860000610351562,
+        "close": 31.940000534057617,
+        "volume": 36913603.0
+      }
+    },
+    "F_KRDMD": {
+      "ticker": "KRDMD.IS",
+      "type": "EQUITY",
+      "last_price": 40.779998779296875,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 40.959999084472656,
+        "high": 41.2599983215332,
+        "low": 40.619998931884766,
+        "close": 40.779998779296875,
+        "volume": 6902707.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 41.099998474121094,
+        "high": 41.459999084472656,
+        "low": 40.619998931884766,
+        "close": 40.779998779296875,
+        "volume": 10544829.0
+      }
+    },
+    "F_TUPRS": {
+      "ticker": "TUPRS.IS",
+      "type": "EQUITY",
+      "last_price": 342.0,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 340.0,
+        "high": 346.25,
+        "low": 339.25,
+        "close": 342.0,
+        "volume": 5434465.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 347.5,
+        "high": 347.75,
+        "low": 339.25,
+        "close": 342.0,
+        "volume": 8327352.0
+      }
+    },
+    "F_PETKM": {
+      "ticker": "PETKM.IS",
+      "type": "EQUITY",
+      "last_price": 17.770000457763672,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 17.770000457763672,
+        "high": 17.989999771118164,
+        "low": 17.709999084472656,
+        "close": 17.770000457763672,
+        "volume": 10281869.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 17.959999084472656,
+        "high": 17.989999771118164,
+        "low": 17.709999084472656,
+        "close": 17.770000457763672,
+        "volume": 13772824.0
+      }
+    },
+    "F_ASELS": {
+      "ticker": "ASELS.IS",
+      "type": "EQUITY",
+      "last_price": 353.5,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 347.25,
+        "high": 357.0,
+        "low": 346.75,
+        "close": 353.5,
+        "volume": 15185888.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 354.25,
+        "high": 357.0,
+        "low": 346.5,
+        "close": 353.5,
+        "volume": 21299806.0
+      }
+    },
+    "F_BIMAS": {
+      "ticker": "BIMAS.IS",
+      "type": "EQUITY",
+      "last_price": 372.25,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 372.0,
+        "high": 377.0,
+        "low": 371.25,
+        "close": 372.25,
+        "volume": 3524059.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 372.0,
+        "high": 377.0,
+        "low": 369.5,
+        "close": 372.25,
+        "volume": 5002198.0
+      }
+    },
+    "F_MGROS": {
+      "ticker": "MGROS.IS",
+      "type": "EQUITY",
+      "last_price": 455.25,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 452.0,
+        "high": 457.75,
+        "low": 451.0,
+        "close": 455.25,
+        "volume": 487301.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 453.0,
+        "high": 457.75,
+        "low": 450.25,
+        "close": 455.25,
+        "volume": 610479.0
+      }
+    },
+    "F_SOKM": {
+      "ticker": "SOKM.IS",
+      "type": "EQUITY",
+      "last_price": 54.20000076293945,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 54.29999923706055,
+        "high": 55.349998474121094,
+        "low": 53.79999923706055,
+        "close": 54.20000076293945,
+        "volume": 1542162.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 54.5,
+        "high": 55.349998474121094,
+        "low": 53.25,
+        "close": 54.20000076293945,
+        "volume": 2616935.0
+      }
+    },
+    "F_EKGYO": {
+      "ticker": "EKGYO.IS",
+      "type": "EQUITY",
+      "last_price": 17.520000457763672,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 17.5,
+        "high": 17.780000686645508,
+        "low": 17.479999542236328,
+        "close": 17.520000457763672,
+        "volume": 22841546.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 17.559999465942383,
+        "high": 17.780000686645508,
+        "low": 17.450000762939453,
+        "close": 17.520000457763672,
+        "volume": 31281951.0
+      }
+    },
+    "F_ISGYO": {
+      "ticker": "ISGYO.IS",
+      "type": "EQUITY",
+      "last_price": 18.15999984741211,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 18.350000381469727,
+        "high": 18.8799991607666,
+        "low": 18.100000381469727,
+        "close": 18.15999984741211,
+        "volume": 419194.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 18.3799991607666,
+        "high": 18.8799991607666,
+        "low": 18.100000381469727,
+        "close": 18.15999984741211,
+        "volume": 494324.0
+      }
+    },
+    "F_ENKAI": {
+      "ticker": "ENKAI.IS",
+      "type": "EQUITY",
+      "last_price": 81.25,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 81.3499984741211,
+        "high": 82.25,
+        "low": 81.0999984741211,
+        "close": 81.25,
+        "volume": 4396989.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 81.80000305175781,
+        "high": 82.25,
+        "low": 81.0999984741211,
+        "close": 81.25,
+        "volume": 7053170.0
+      }
+    },
+    "F_FROTO": {
+      "ticker": "FROTO.IS",
+      "type": "EQUITY",
+      "last_price": 68.8499984741211,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 68.6500015258789,
+        "high": 69.5999984741211,
+        "low": 68.6500015258789,
+        "close": 68.8499984741211,
+        "volume": 3229697.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 68.80000305175781,
+        "high": 69.5999984741211,
+        "low": 68.3499984741211,
+        "close": 68.8499984741211,
+        "volume": 4482892.0
+      }
+    },
+    "F_TOASO": {
+      "ticker": "TOASO.IS",
+      "type": "EQUITY",
+      "last_price": 227.10000610351562,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 226.6999969482422,
+        "high": 230.10000610351562,
+        "low": 226.39999389648438,
+        "close": 227.10000610351562,
+        "volume": 853225.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 228.3000030517578,
+        "high": 230.10000610351562,
+        "low": 226.10000610351562,
+        "close": 227.10000610351562,
+        "volume": 1317638.0
+      }
+    },
+    "F_KARSN": {
+      "ticker": "KARSN.IS",
+      "type": "EQUITY",
+      "last_price": 7.440000057220459,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 7.349999904632568,
+        "high": 7.46999979019165,
+        "low": 7.340000152587891,
+        "close": 7.440000057220459,
+        "volume": 1860568.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 7.409999847412109,
+        "high": 7.46999979019165,
+        "low": 7.340000152587891,
+        "close": 7.440000057220459,
+        "volume": 2896702.0
+      }
+    },
+    "F_KCHOL": {
+      "ticker": "KCHOL.IS",
+      "type": "EQUITY",
+      "last_price": 203.1999969482422,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 202.5,
+        "high": 205.1999969482422,
+        "low": 202.39999389648438,
+        "close": 203.1999969482422,
+        "volume": 6854053.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 204.0,
+        "high": 205.1999969482422,
+        "low": 202.1999969482422,
+        "close": 203.1999969482422,
+        "volume": 9674988.0
+      }
+    },
+    "F_SAHOL": {
+      "ticker": "SAHOL.IS",
+      "type": "EQUITY",
+      "last_price": 86.55000305175781,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 86.5,
+        "high": 87.55000305175781,
+        "low": 86.4000015258789,
+        "close": 86.55000305175781,
+        "volume": 6289963.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 87.0,
+        "high": 87.55000305175781,
+        "low": 86.30000305175781,
+        "close": 86.55000305175781,
+        "volume": 8879027.0
+      }
+    },
+    "F_ALARK": {
+      "ticker": "ALARK.IS",
+      "type": "EQUITY",
+      "last_price": 99.69999694824219,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 99.0999984741211,
+        "high": 101.0,
+        "low": 99.0,
+        "close": 99.69999694824219,
+        "volume": 672918.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 98.5999984741211,
+        "high": 101.0,
+        "low": 98.0999984741211,
+        "close": 99.69999694824219,
+        "volume": 1674950.0
+      }
+    },
+    "F_TKFEN": {
+      "ticker": "TKFEN.IS",
+      "type": "EQUITY",
+      "last_price": 193.5,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 192.89999389648438,
+        "high": 196.8000030517578,
+        "low": 190.8000030517578,
+        "close": 193.5,
+        "volume": 1136229.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 190.39999389648438,
+        "high": 196.8000030517578,
+        "low": 190.10000610351562,
+        "close": 193.5,
+        "volume": 1506308.0
+      }
+    },
+    "F_PGSUS": {
+      "ticker": "PGSUS.IS",
+      "type": "EQUITY",
+      "last_price": 133.6999969482422,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 135.1999969482422,
+        "high": 136.89999389648438,
+        "low": 133.60000610351562,
+        "close": 133.6999969482422,
+        "volume": 6140161.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 135.5,
+        "high": 136.89999389648438,
+        "low": 133.60000610351562,
+        "close": 133.6999969482422,
+        "volume": 8324081.0
+      }
+    },
+    "F_TAVHL": {
+      "ticker": "TAVHL.IS",
+      "type": "EQUITY",
+      "last_price": 278.75,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 279.0,
+        "high": 282.75,
+        "low": 278.0,
+        "close": 278.75,
+        "volume": 1099783.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 278.25,
+        "high": 282.75,
+        "low": 276.5,
+        "close": 278.75,
+        "volume": 1641454.0
+      }
+    },
+    "F_SISE": {
+      "ticker": "SISE.IS",
+      "type": "EQUITY",
+      "last_price": 35.65999984741211,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 35.86000061035156,
+        "high": 36.18000030517578,
+        "low": 35.63999938964844,
+        "close": 35.65999984741211,
+        "volume": 7320742.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 36.08000183105469,
+        "high": 36.18000030517578,
+        "low": 35.63999938964844,
+        "close": 35.65999984741211,
+        "volume": 10132931.0
+      }
+    },
+    "F_TCELL": {
+      "ticker": "TCELL.IS",
+      "type": "EQUITY",
+      "last_price": 93.94999694824219,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 92.05000305175781,
+        "high": 94.0999984741211,
+        "low": 92.05000305175781,
+        "close": 93.94999694824219,
+        "volume": 39310358.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 93.44999694824219,
+        "high": 94.0999984741211,
+        "low": 92.0,
+        "close": 93.94999694824219,
+        "volume": 45883294.0
+      }
+    },
+    "F_TTKOM": {
+      "ticker": "TTKOM.IS",
+      "type": "EQUITY",
+      "last_price": 48.84000015258789,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 48.63999938964844,
+        "high": 49.34000015258789,
+        "low": 48.63999938964844,
+        "close": 48.84000015258789,
+        "volume": 6611091.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 48.900001525878906,
+        "high": 49.34000015258789,
+        "low": 48.58000183105469,
+        "close": 48.84000015258789,
+        "volume": 8860392.0
+      }
+    },
+    "F_ARCLK": {
+      "ticker": "ARCLK.IS",
+      "type": "EQUITY",
+      "last_price": 69.3499984741211,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 69.19999694824219,
+        "high": 70.30000305175781,
+        "low": 69.19999694824219,
+        "close": 69.3499984741211,
+        "volume": 348454.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 69.4000015258789,
+        "high": 70.30000305175781,
+        "low": 68.75,
+        "close": 69.3499984741211,
+        "volume": 462550.0
+      }
+    },
+    "F_VESTL": {
+      "ticker": "VESTL.IS",
+      "type": "EQUITY",
+      "last_price": 13.489999771118164,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 13.489999771118164,
+        "high": 13.489999771118164,
+        "low": 13.489999771118164,
+        "close": 13.489999771118164,
+        "volume": 170411.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 13.489999771118164,
+        "high": 13.489999771118164,
+        "low": 13.489999771118164,
+        "close": 13.489999771118164,
+        "volume": 175887.0
+      }
+    },
+    "F_ASTOR": {
+      "ticker": "ASTOR.IS",
+      "type": "EQUITY",
+      "last_price": 165.60000610351562,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 165.0,
+        "high": 167.39999389648438,
+        "low": 164.39999389648438,
+        "close": 165.60000610351562,
+        "volume": 5752597.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 168.5,
+        "high": 171.0,
+        "low": 164.39999389648438,
+        "close": 165.60000610351562,
+        "volume": 14254457.0
+      }
+    },
+    "F_ENJSA": {
+      "ticker": "ENJSA.IS",
+      "type": "EQUITY",
+      "last_price": 119.4000015258789,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 117.0,
+        "high": 120.0,
+        "low": 116.9000015258789,
+        "close": 119.4000015258789,
+        "volume": 1240046.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 117.9000015258789,
+        "high": 120.0,
+        "low": 116.80000305175781,
+        "close": 119.4000015258789,
+        "volume": 1607559.0
+      }
+    },
+    "F_EUPWR": {
+      "ticker": "EUPWR.IS",
+      "type": "EQUITY",
+      "last_price": 42.97999954223633,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 42.41999816894531,
+        "high": 43.400001525878906,
+        "low": 42.41999816894531,
+        "close": 42.97999954223633,
+        "volume": 2554378.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 42.86000061035156,
+        "high": 43.400001525878906,
+        "low": 42.2599983215332,
+        "close": 42.97999954223633,
+        "volume": 3722468.0
+      }
+    },
+    "F_GESAN": {
+      "ticker": "GESAN.IS",
+      "type": "EQUITY",
+      "last_price": 35.5,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 34.439998626708984,
+        "high": 35.560001373291016,
+        "low": 34.439998626708984,
+        "close": 35.5,
+        "volume": 1872675.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 34.65999984741211,
+        "high": 35.560001373291016,
+        "low": 34.29999923706055,
+        "close": 35.5,
+        "volume": 2608350.0
+      }
+    },
+    "F_ODAS": {
+      "ticker": "ODAS.IS",
+      "type": "EQUITY",
+      "last_price": 4.659999847412109,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 4.670000076293945,
+        "high": 4.71999979019165,
+        "low": 4.650000095367432,
+        "close": 4.659999847412109,
+        "volume": 5341919.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 4.699999809265137,
+        "high": 4.71999979019165,
+        "low": 4.650000095367432,
+        "close": 4.659999847412109,
+        "volume": 9039632.0
+      }
+    },
+    "F_CANTE": {
+      "ticker": "CANTE.IS",
+      "type": "EQUITY",
+      "last_price": 0.9700000286102295,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 0.9599999785423279,
+        "high": 0.9700000286102295,
+        "low": 0.949999988079071,
+        "close": 0.9700000286102295,
+        "volume": 13303219.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 0.9700000286102295,
+        "high": 0.9700000286102295,
+        "low": 0.949999988079071,
+        "close": 0.9700000286102295,
+        "volume": 43018233.0
+      }
+    },
+    "F_BRSAN": {
+      "ticker": "BRSAN.IS",
+      "type": "EQUITY",
+      "last_price": 667.5,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 662.5,
+        "high": 670.5,
+        "low": 662.0,
+        "close": 667.5,
+        "volume": 431000.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 667.0,
+        "high": 670.5,
+        "low": 661.0,
+        "close": 667.5,
+        "volume": 736875.0
+      }
+    },
+    "F_CIMSA": {
+      "ticker": "CIMSA.IS",
+      "type": "EQUITY",
+      "last_price": 41.779998779296875,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 41.560001373291016,
+        "high": 42.34000015258789,
+        "low": 41.540000915527344,
+        "close": 41.779998779296875,
+        "volume": 1342293.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 41.65999984741211,
+        "high": 42.34000015258789,
+        "low": 41.41999816894531,
+        "close": 41.779998779296875,
+        "volume": 1814421.0
+      }
+    },
+    "F_GUBRF": {
+      "ticker": "GUBRF.IS",
+      "type": "EQUITY",
+      "last_price": 284.0,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 287.75,
+        "high": 290.75,
+        "low": 281.75,
+        "close": 284.0,
+        "volume": 1202156.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 293.5,
+        "high": 294.0,
+        "low": 281.75,
+        "close": 284.0,
+        "volume": 1713113.0
+      }
+    },
+    "F_HEKTS": {
+      "ticker": "HEKTS.IS",
+      "type": "EQUITY",
+      "last_price": 1.8300000429153442,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 1.8300000429153442,
+        "high": 1.840000033378601,
+        "low": 1.809999942779541,
+        "close": 1.8300000429153442,
+        "volume": 37984440.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 1.809999942779541,
+        "high": 1.840000033378601,
+        "low": 1.7999999523162842,
+        "close": 1.8300000429153442,
+        "volume": 68022323.0
+      }
+    },
+    "F_TURSG": {
+      "ticker": "TURSG.IS",
+      "type": "EQUITY",
+      "last_price": 3.569999933242798,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 3.559999942779541,
+        "high": 3.609999895095825,
+        "low": 3.549999952316284,
+        "close": 3.569999933242798,
+        "volume": 22945250.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 3.609999895095825,
+        "high": 3.619999885559082,
+        "low": 3.549999952316284,
+        "close": 3.569999933242798,
+        "volume": 38808802.0
+      }
+    },
+    "F_ULKER": {
+      "ticker": "ULKER.IS",
+      "type": "EQUITY",
+      "last_price": 80.75,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 80.3499984741211,
+        "high": 81.30000305175781,
+        "low": 80.25,
+        "close": 80.75,
+        "volume": 931895.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 80.44999694824219,
+        "high": 81.30000305175781,
+        "low": 80.05000305175781,
+        "close": 80.75,
+        "volume": 1227150.0
+      }
+    },
+    "F_XU030": {
+      "ticker": "XU030.IS",
+      "type": "INDEX",
+      "last_price": 14327.8203125,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 14274.91015625,
+        "high": 14455.9697265625,
+        "low": 14272.4404296875,
+        "close": 14327.8203125,
+        "volume": 0.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 14409.9404296875,
+        "high": 14455.9697265625,
+        "low": 14264.5,
+        "close": 14327.8203125,
+        "volume": 0.0
+      }
+    },
+    "F_XU100": {
+      "ticker": "XU100.IS",
+      "type": "INDEX",
+      "last_price": 11478.990234375,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 11438.6201171875,
+        "high": 11578.41015625,
+        "low": 11437.2197265625,
+        "close": 11478.990234375,
+        "volume": 0.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 11531.5,
+        "high": 11578.41015625,
+        "low": 11432.419921875,
+        "close": 11478.990234375,
+        "volume": 0.0
+      }
+    },
+    "F_XLBNK": {
+      "ticker": "XBANK.IS",
+      "type": "INDEX",
+      "last_price": 15841.3203125,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 15889.259765625,
+        "high": 16093.2802734375,
+        "low": 15835.490234375,
+        "close": 15841.3203125,
+        "volume": 0.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 16003.7001953125,
+        "high": 16093.2802734375,
+        "low": 15835.490234375,
+        "close": 15841.3203125,
+        "volume": 0.0
+      }
+    },
+    "F_XUSIN": {
+      "ticker": "XUSIN.IS",
+      "type": "INDEX",
+      "last_price": 13704.0400390625,
+      "last_update": "2026-11-04T17:45:00",
+      "bars_15m_count": 144,
+      "bars_120m_count": 23,
+      "bars_240m_count": 9,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 16:00:00",
+        "open": 13678.9501953125,
+        "high": 13834.3896484375,
+        "low": 13678.9501953125,
+        "close": 13704.0400390625,
+        "volume": 0.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 13823.849609375,
+        "high": 13834.8095703125,
+        "low": 13676.1396484375,
+        "close": 13704.0400390625,
+        "volume": 0.0
+      }
+    },
+    "F_USDTRY": {
+      "ticker": "TRY=X",
+      "type": "FX",
+      "last_price": 50.01470184326172,
+      "last_update": "2026-11-04T18:45:00",
+      "bars_15m_count": 450,
+      "bars_120m_count": 58,
+      "bars_240m_count": 10,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 18:00:00",
+        "open": 50.01449966430664,
+        "high": 50.018798828125,
+        "low": 50.00844955444336,
+        "close": 50.01470184326172,
+        "volume": 0.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 50.01298904418945,
+        "high": 50.019100189208984,
+        "low": 49.98099899291992,
+        "close": 50.01470184326172,
+        "volume": 0.0
+      }
+    },
+    "F_EURTRY": {
+      "ticker": "EURTRY=X",
+      "type": "FX",
+      "last_price": 56.12847137451172,
+      "last_update": "2026-11-04T18:45:00",
+      "bars_15m_count": 450,
+      "bars_120m_count": 57,
+      "bars_240m_count": 10,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 18:00:00",
+        "open": 56.22330093383789,
+        "high": 56.249698638916016,
+        "low": 56.12847137451172,
+        "close": 56.12847137451172,
+        "volume": 0.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 56.301151275634766,
+        "high": 56.301151275634766,
+        "low": 56.10150146484375,
+        "close": 56.12847137451172,
+        "volume": 0.0
+      }
+    },
+    "F_EURUSD": {
+      "ticker": "EURUSD=X",
+      "type": "FX",
+      "last_price": 1.1223344802856445,
+      "last_update": "2026-11-04T18:45:00",
+      "bars_15m_count": 450,
+      "bars_120m_count": 57,
+      "bars_240m_count": 10,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 18:00:00",
+        "open": 1.1238480806350708,
+        "high": 1.1242270469665527,
+        "low": 1.1222084760665894,
+        "close": 1.1223344802856445,
+        "volume": 0.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 1.1252391338348389,
+        "high": 1.1252391338348389,
+        "low": 1.1217050552368164,
+        "close": 1.1223344802856445,
+        "volume": 0.0
+      }
+    },
+    "F_GBPTRY": {
+      "ticker": "GBPTRY=X",
+      "type": "FX",
+      "last_price": 67.34449768066406,
+      "last_update": "2026-11-04T18:30:00",
+      "bars_15m_count": 449,
+      "bars_120m_count": 57,
+      "bars_240m_count": 10,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 18:00:00",
+        "open": 67.37750244140625,
+        "high": 67.39669799804688,
+        "low": 67.3364028930664,
+        "close": 67.34449768066406,
+        "volume": 0.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 18:15:00",
+        "open": 67.40460205078125,
+        "high": 67.40560150146484,
+        "low": 67.30609893798828,
+        "close": 67.34449768066406,
+        "volume": 0.0
+      }
+    },
+    "F_GAUTRY": {
+      "ticker": "GC=F",
+      "type": "COMMODITY",
+      "last_price": 4073.10009765625,
+      "last_update": "2026-11-04T13:30:00",
+      "bars_15m_count": 331,
+      "bars_120m_count": 43,
+      "bars_240m_count": 8,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 12:00:00",
+        "open": 4076.60009765625,
+        "high": 4081.199951171875,
+        "low": 4069.0,
+        "close": 4073.10009765625,
+        "volume": 21922.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 14:15:00",
+        "open": 3962.699951171875,
+        "high": 4081.199951171875,
+        "low": 3956.199951171875,
+        "close": 4073.10009765625,
+        "volume": 169971.0
+      }
+    },
+    "F_XAUUSD": {
+      "ticker": "GC=F",
+      "type": "COMMODITY",
+      "last_price": 4073.10009765625,
+      "last_update": "2026-11-04T13:30:00",
+      "bars_15m_count": 331,
+      "bars_120m_count": 43,
+      "bars_240m_count": 8,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 12:00:00",
+        "open": 4076.60009765625,
+        "high": 4081.199951171875,
+        "low": 4069.0,
+        "close": 4073.10009765625,
+        "volume": 21922.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 14:15:00",
+        "open": 3962.699951171875,
+        "high": 4081.199951171875,
+        "low": 3956.199951171875,
+        "close": 4073.10009765625,
+        "volume": 169971.0
+      }
+    },
+    "F_GAGTRY": {
+      "ticker": "SI=F",
+      "type": "COMMODITY",
+      "last_price": 52.26499938964844,
+      "last_update": "2026-11-04T13:30:00",
+      "bars_15m_count": 331,
+      "bars_120m_count": 43,
+      "bars_240m_count": 8,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 12:00:00",
+        "open": 52.25,
+        "high": 52.494998931884766,
+        "low": 52.11000061035156,
+        "close": 52.26499938964844,
+        "volume": 7448.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 14:15:00",
+        "open": 49.89500045776367,
+        "high": 52.494998931884766,
+        "low": 49.73500061035156,
+        "close": 52.26499938964844,
+        "volume": 48547.0
+      }
+    },
+    "F_XAGUSD": {
+      "ticker": "SI=F",
+      "type": "COMMODITY",
+      "last_price": 52.26499938964844,
+      "last_update": "2026-11-04T13:30:00",
+      "bars_15m_count": 331,
+      "bars_120m_count": 43,
+      "bars_240m_count": 8,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 12:00:00",
+        "open": 52.25,
+        "high": 52.494998931884766,
+        "low": 52.11000061035156,
+        "close": 52.26499938964844,
+        "volume": 7448.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 14:15:00",
+        "open": 49.89500045776367,
+        "high": 52.494998931884766,
+        "low": 49.73500061035156,
+        "close": 52.26499938964844,
+        "volume": 48547.0
+      }
+    },
+    "F_PLAT": {
+      "ticker": "PL=F",
+      "type": "COMMODITY",
+      "last_price": 1495.800048828125,
+      "last_update": "2026-11-04T13:30:00",
+      "bars_15m_count": 331,
+      "bars_120m_count": 43,
+      "bars_240m_count": 8,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 12:00:00",
+        "open": 1491.699951171875,
+        "high": 1503.5,
+        "low": 1487.199951171875,
+        "close": 1495.800048828125,
+        "volume": 5934.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 14:15:00",
+        "open": 1410.0,
+        "high": 1503.5,
+        "low": 1407.0,
+        "close": 1495.800048828125,
+        "volume": 21507.0
+      }
+    },
+    "F_BRENT": {
+      "ticker": "BZ=F",
+      "type": "COMMODITY",
+      "last_price": 95.02999877929688,
+      "last_update": "2026-11-04T13:30:00",
+      "bars_15m_count": 331,
+      "bars_120m_count": 43,
+      "bars_240m_count": 8,
+      "last_120m_bar": {
+        "timestamp": "2026-11-04 12:00:00",
+        "open": 94.45999908447266,
+        "high": 95.81999969482422,
+        "low": 93.4000015258789,
+        "close": 95.02999877929688,
+        "volume": 12999.0
+      },
+      "last_240m_bar": {
+        "timestamp": "2026-11-04 14:15:00",
+        "open": 103.61000061035156,
+        "high": 104.55000305175781,
+        "low": 93.4000015258789,
+        "close": 95.02999877929688,
+        "volume": 54333.0
+      }
+    }
+  },
+  "margin_call": {
+    "account_equity": 2000000.0,
+    "total_initial_margin": 0.0,
+    "total_maintenance_margin": 0.0,
+    "free_margin": 2000000.0,
+    "margin_ratio_pct": 999.0,
+    "margin_deficit_try": 0.0,
+    "status": "HEALTHY",
+    "check_type": "AUTONOMOUS_CYCLE",
+    "timestamp": "2026-11-04 21:47:14.186453",
+    "liquidation_required": false,
+    "target_liquidation_symbol": null
+  },
+  "last_morning_sync": "2026-11-04"
+}

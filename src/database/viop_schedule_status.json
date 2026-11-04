@@ -1,0 +1,82 @@
+{
+  "title": "FİNTABLES VERİ GÜNCELLEME TAKVİMİ CANLI DURUMU",
+  "as_of_time": "2026-11-04T21:47:14.206997",
+  "schedule": {
+    "contracts_universe": {
+      "rule": "Günde 1 Kez (Sabah 08:30)",
+      "last_sync": "2026-11-04T21:17:45.073504",
+      "target_time": "08:30:00"
+    },
+    "initial_margins": {
+      "rule": "Günde 2 Kez (09:00 ve 14:00)",
+      "last_sync_0900": "2026-11-04T21:17:46.729276",
+      "last_sync_1400": "2026-11-02T09:47:59.735628",
+      "target_times": [
+        "09:00:00",
+        "14:00:00"
+      ]
+    },
+    "prices_and_indicators": {
+      "rule": "15 Dakikada 1 (240m Resampler)",
+      "last_sync": null,
+      "target_interval": "15 dakika"
+    },
+    "margin_call_check": {
+      "rule": "15 Dk Pasif + Bar Kapanışları (14:15 ve 18:15)",
+      "last_passive_sync": "2026-11-02T09:48:00.184543",
+      "last_bar_close_1415": "2026-11-02T09:48:00.199326",
+      "last_bar_close_1815": null,
+      "target_events": [
+        "15m passive",
+        "14:15 bar close",
+        "18:15 bar close"
+      ]
+    },
+    "ale_fund_nema": {
+      "rule": "Seans Sonu (18:15)",
+      "last_sync": "2026-11-04T21:47:14.196474",
+      "target_time": "18:15:00"
+    }
+  },
+  "last_syncs": {
+    "contracts_universe_0830": "2026-11-04T21:17:45.073504",
+    "margins_0900": "2026-11-04T21:17:46.729276",
+    "margins_1400": "2026-11-02T09:47:59.735628",
+    "bars_15m": null,
+    "margin_call_passive_15m": "2026-11-02T09:48:00.184543",
+    "margin_call_bar_close_1415": "2026-11-02T09:48:00.199326",
+    "margin_call_bar_close_1815": null,
+    "ale_fund_1815": "2026-11-04T21:47:14.196474"
+  },
+  "universe_breakdown": {
+    "total_asset_classes": 4,
+    "total_underlyings": 63,
+    "total_active_contracts": 207,
+    "categories": {
+      "EQUITY": {
+        "name": "Pay",
+        "underlyings_count": 47,
+        "contracts_count": 141,
+        "maturities_per_asset": "3 Vade (Cari, Takip Eden, Çeyrek)"
+      },
+      "INDEX": {
+        "name": "Endeks",
+        "underlyings_count": 4,
+        "contracts_count": 12,
+        "maturities_per_asset": "3 Vade (XU030, XU100, XLBNK, XUSIN)"
+      },
+      "FX": {
+        "name": "Döviz",
+        "underlyings_count": 6,
+        "contracts_count": 36,
+        "maturities_per_asset": "6 Vade (USDTRY, EURTRY, EURUSD, GBPTRY, RUBTRY, CNHTRY)"
+      },
+      "COMMODITY": {
+        "name": "Emtia ve kıymetli maden",
+        "underlyings_count": 6,
+        "contracts_count": 18,
+        "maturities_per_asset": "3 Vade (GAUTRY, XAUUSD, GAGTRY, XAGUSD, PLAT, BRENT)"
+      }
+    }
+  }
+}

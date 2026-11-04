@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  # 1. Dashboard Servisi (Streamlit Web UI)
+  viop-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: viop_dashboard
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./viop_trading.db:/app/viop_trading.db
+      - ./data:/app/data
+    environment:
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_HEADLESS=true
+      - STREAMLIT_SERVER_ENABLE_CORS=false
+    command: ["streamlit", "run", "src/dashboard/app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+
+  # 2. Canlı Ticaret ve Simülasyon Motoru (7/24 Arka Plan İşlemi)
+  viop-trading-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: viop_engine
+    restart: unless-stopped
+    volumes:
+      - ./viop_trading.db:/app/viop_trading.db
+      - ./data:/app/data
+    command: ["python", "src/live_simulation.py"]
