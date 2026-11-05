@@ -363,7 +363,7 @@ if selected_menu == "🏛️ Canlı Kasa & ALE Fonu":
 
             formatted_pos.append({
                 "Sembol": sym,
-                "Yön": side_badge,
+                "İşlem Yönü": side_badge,
                 "Kontrat (Lot)": abs(p["lots"]),
                 "Pozisyon Tutarı (TL)": f"{notional:,.2f} TL",
                 "Bağlanan Teminat": f"{margin:,.2f} TL",
@@ -379,49 +379,66 @@ if selected_menu == "🏛️ Canlı Kasa & ALE Fonu":
         st.info("🛡️ Şu anda açık VİOP pozisyonu bulunmamaktadır. 2.000.000 TL serbest nakdin %100'ü Akbank ALE fonunda gecelik net %39.60 faizle değerlendirilmektedir.")
 
     st.markdown("---")
-    st.subheader("🎯 Seans Öncesi Planlama & Tetik Radarı (Dün Kapanış Kararları)")
+    st.subheader("🎯 Seans Öncesi Planlama & İki Yönlü Tetik Radarı (LONG & SHORT)")
     st.markdown("""
-    > **Neden Seans Açılmadan Önce Pasif / Taslak Emir Girilmez? (Ali Perşembe Doktrini)**
-    > * **VİOP Seans Açılışı (09:30):** Borsa İstanbul VİOP seansı saat 09:30'da başlar. Seans açılmadan tahtaya körleme emir girmek, sabah eşleşmesinde ve olası ters haber gaplerinde sermayeyi riske atar.
-    > * **09:30 - 10:15 Açılış Çalkantısı Kalkanı (`REJECT_TIME_OPENING`):** Açılışın ilk 45 dakikasındaki suni açılış çalkantısı ve manipülatif tuzaklar sönümlenene kadar sistem koruma modundadır.
-    > * **Canlı Tetik Mekanizması:** Sistem dünkü 240m tepe/dip seviyelerini ve savunma kurallarını belleğe almıştır. Saat 10:15 sonrasında canlı seans fiyatları aşağıdaki tetik seviyelerini hacimle kırdığında emirler anında üretilir ve icra edilir.
+    > **Çift Yönlü Algoritmik Ticaret & Açılış Koruma Kalkanı (Ali Perşembe Doktrini)**
+    > * **%100 Çift Yönlü Özgürlük (LONG & SHORT):** Sistem tüm Pay, Endeks ve Emtia sözleşmelerinde hem yükseliş kırılımlarını (LONG) hem de düşüş çöküşlerini (SHORT) eşzamanlı olarak tarar ve icra eder.
+    > * **Neden Seans Açılmadan Önce Pasif Emir Girilmez?** Borsa İstanbul VİOP seansı saat 09:30'da başlar. Seans açılmadan tahtaya körleme emir girmek, sabah eşleşmesinde ve olası ters haber gaplerinde sermayeyi riske atar.
+    > * **09:30 - 10:15 Açılış Çalkantısı Kalkanı (`REJECT_TIME_OPENING`):** Açılışın ilk 45 dakikasındaki yapay spekülatif tuzaklar ve açılış eşleşme gürültüsü sönümlenene kadar sistem koruma modundadır.
+    > * **Canlı Tetik Mekanizması:** Saat 10:15 sonrasında, canlı fiyatlar aşağıdaki direnç seviyesini aşarsa **LONG**, destek seviyesini kırarsa **SHORT** emirleri anında üretilir.
     """)
 
     if live_market_state and "contracts" in live_market_state:
         radar_rows = []
         for sym, c_info in live_market_state["contracts"].items():
             cat = c_info.get("type", "EQUITY")
-            lp = c_info.get("last_price", 0.0)
+            lp = float(c_info.get("last_price", 0.0))
             bar240 = c_info.get("last_240m_bar", {})
-            h = bar240.get("high", lp)
-            l = bar240.get("low", lp)
-            o = bar240.get("open", lp)
-            c = bar240.get("close", lp)
+            h = float(bar240.get("high", lp))
+            l = float(bar240.get("low", lp))
+            o = float(bar240.get("open", lp))
+            c = float(bar240.get("close", lp))
             rng = h - l
-            wick = h - max(o, c)
-            w_pct = (wick / rng * 100.0) if rng > 0 else 0.0
+
+            upper_wick = h - max(o, c)
+            lower_wick = min(o, c) - l
+
+            u_pct = (upper_wick / rng * 100.0) if rng > 0 else 0.0
+            l_pct = (lower_wick / rng * 100.0) if rng > 0 else 0.0
 
             if cat == "FX":
-                status = "🛡️ ALE Repo Fonunda (TRY Çıplak Kırılım Kapalı)"
-                trigger_level = "-"
-            elif w_pct >= 40.0:
-                status = f"⚠️ Üst Fitil Yüksek (%{w_pct:.1f} > %40 - Satıcı Baskısı)"
-                trigger_level = f">{h:,.2f} TL (Tepenin Aşılması Şart)"
+                direction_badge = "🛡️ REPO (Nötr)"
+                status = "🛡️ Nakit ALE Repo Fonunda (%48 Brüt - Çıplak Kırılım Kapalı)"
+                long_trigger = "-"
+                short_trigger = "-"
             else:
-                status = "👀 10:15 Sonrası Kırılım Gözleniyor (Pozitif İvme)"
-                trigger_level = f">{h:,.2f} TL (Direnç Kırılımı)"
+                direction_badge = "🔄 ÇİFT YÖNLÜ (LONG / SHORT)"
+                long_trigger = f">{h:,.2f} TL (Donchian / 240m Tepe)"
+                short_trigger = f"<{l:,.2f} TL (Donchian / 240m Dip)"
+
+                if u_pct >= 40.0 and l_pct >= 40.0:
+                    status = f"⚠️ Kararsız Doji (Üst %{u_pct:.0f} / Alt %{l_pct:.0f}) -> Kırılım Teyidi Bekleniyor"
+                elif u_pct >= 40.0:
+                    status = f"⚠️ Satıcı Baskısı (Üst Fitil %{u_pct:.0f} > %40) -> Long için {h:,.2f} TL aşılmalı, Short tetiklenebilir"
+                elif l_pct >= 50.0:
+                    status = f"⚠️ Alıcı Tepkisi (Alt Fitil %{l_pct:.0f} > %50) -> Short için {l:,.2f} TL kırılmalı, Long tetiklenebilir"
+                else:
+                    status = f"🎯 Çift Yönlü İcra: >{h:,.2f} TL LONG | <{l:,.2f} TL SHORT"
 
             radar_rows.append({
                 "Sözleşme": sym,
                 "Sınıf": cat,
-                "Dün Kapanış Fiyatı": f"{lp:,.2f} TL",
-                "240m Direnç (Tetik Seviyesi)": trigger_level,
-                "Üst Fitil Baskısı": f"%{w_pct:.1f}",
+                "Dün Kapanış": f"{lp:,.2f} TL",
+                "İzinli İşlem Yönü": direction_badge,
+                "Long Tetik Seviyesi (Direnç)": long_trigger,
+                "Short Tetik Seviyesi (Destek)": short_trigger,
+                "Üst Fitil (Satıcı Baskısı)": f"%{u_pct:.1f}",
+                "Alt Fitil (Alıcı Tepkisi)": f"%{l_pct:.1f}",
                 "Seans Planı & Savunma Durumu": status
             })
 
         df_radar = pd.DataFrame(radar_rows)
-        st.dataframe(df_radar, use_container_width=True, height=300)
+        st.dataframe(df_radar, use_container_width=True, height=320)
 
     st.markdown("---")
     st.subheader("📈 2.000.000 TL Canlı Portföy Sermaye Eğrisi (Equity Curve)")
@@ -432,13 +449,32 @@ if selected_menu == "🏛️ Canlı Kasa & ALE Fonu":
         st.info("ℹ️ Canlı sermaye eğrisi ilk döngüyle birlikte 2.000.000 TL tabanında başlatıldı. Karar döngüleri gerçekleştikçe grafik anlık çizilecektir.")
 
     st.markdown("---")
-    st.subheader("📜 Canlı İcra Edilen Emirler ve İşlem Geçmişi")
+    st.subheader("📜 Canlı İcra Edilen Emirler ve İşlem Geçmişi (LONG & SHORT)")
     trades = db.get_trade_history()
     if trades:
-        df_tr = pd.DataFrame(trades)
-        st.dataframe(df_tr, use_container_width=True)
+        formatted_trades = []
+        for t in trades:
+            side_raw = str(t.get("side", "")).upper()
+            side_badge = "🟢 LONG" if "LONG" in side_raw else "🔴 SHORT"
+            pnl_val = float(t.get("pnl_try", 0.0))
+            pnl_str = f"+{pnl_val:,.2f} TL" if pnl_val >= 0 else f"{pnl_val:,.2f} TL"
+
+            formatted_trades.append({
+                "İşlem ID": t.get("trade_id", "-"),
+                "Sözleşme": t.get("symbol", "-"),
+                "İşlem Yönü": side_badge,
+                "Kontrat (Lot)": t.get("lots", 0),
+                "Giriş Fiyatı": f"{float(t.get('entry_price', 0)):,.2f} TL",
+                "Çıkış Fiyatı": f"{float(t.get('exit_price', 0)):,.2f} TL",
+                "Net Kâr/Zarar": pnl_str,
+                "R-Çarpanı": f"{float(t.get('r_multiple', 1.0)):+.2f}R",
+                "Kapanış Gerekçesi": t.get("exit_reason", "-"),
+                "Giriş Zamanı": str(t.get("entry_time", "-"))[:19].replace("T", " "),
+                "Çıkış Zamanı": str(t.get("exit_time", "-"))[:19].replace("T", " ")
+            })
+        st.dataframe(pd.DataFrame(formatted_trades), use_container_width=True)
     else:
-        st.info("ℹ️ Henüz tamamlanmış (kapatılmış) işlem bulunmamaktadır. Otonom canlı motor pozisyon kapattıkça (Chandelier Stop, Time Stop, Scale-Out) işlemler bu tabloya anlık yansıyacaktır.")
+        st.info("ℹ️ Henüz tamamlanmış (kapatılmış) işlem bulunmamaktadır. Otonom canlı motor pozisyon kapattıkça (Chandelier Stop, Time Stop, Scale-Out) işlemler hem 🟢 LONG hem 🔴 SHORT yön belirteçleriyle bu tabloya anlık yansıyacaktır.")
 
 
 # ------------------------------------------------------------------------------

@@ -426,7 +426,7 @@ class AutonomousLiveOperator:
                 # Teknik İcra Değerlendirmesi
                 tech_decision = self.executioner.evaluate(
                     symbol=sym,
-                    compass_bias=DirectionalBias.ONLY_LONG if cat in ("EQUITY", "INDEX") else DirectionalBias.NEUTRAL,
+                    compass_bias=DirectionalBias.BI_DIRECTIONAL if cat in ("EQUITY", "INDEX", "COMMODITY") else DirectionalBias.NEUTRAL,
                     daily_data=daily_df,
                     hourly_data=hourly_proxy,
                     position_state=pos_state,
