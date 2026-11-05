@@ -15,7 +15,11 @@ import sys
 from typing import Any, Dict, List, Optional
 import pandas as pd
 import streamlit as st
-from streamlit_autorefresh import st_autorefresh
+try:
+    from streamlit_autorefresh import st_autorefresh
+except ImportError:
+    def st_autorefresh(*args, **kwargs):
+        return None
 
 # Proje ana dizinini sys.path'e ekle
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
