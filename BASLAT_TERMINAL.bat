@@ -1,25 +1,25 @@
 @echo off
 chcp 65001 >nul
-title VIOP Canlı İşlem ve Risk Kokpiti (v4.2) - 2.000.000 TL Tek Bütçe
+title VIOP Canli Islem ve Risk Kokpiti (v4.2) - 2.000.000 TL Tek Butce
 echo ===============================================================================
-echo   🏛️ VIOP ÇOK VARLIKLI KANTİTATİF CANLI İŞLEM VE RİSK KOKPİTİ (v4.2)
-echo   Ali Perşembe Doktrini | 2.000.000 TL TEK ORTAK PORTFÖY BÜTÇESİ
-echo   %%100 TAM OTONOM CANLI TEST OPERASYONU (Sıfır Manuel Müdahale)
+echo   VIOP COK VARLIKLI KANTITATIF CANLI ISLEM VE RISK KOKPITI (v4.2)
+echo   Ali Persembe Doktrini - 2.000.000 TL TEK ORTAK PORTFOY BUTCESI
+echo   %%100 TAM OTONOM CANLI TEST OPERASYONU (Sifir Manuel Mudahale)
 echo ===============================================================================
 echo.
 cd /d "%~dp0"
 
-echo [*] 1. VİOP Otonom Canlı Operatör arkaplanda başlatılıyor...
-echo        • Sabah Başlatma: Fintables.MCP Sözleşmeler, Teminatlar, Margin Call
-echo        • 15-Dakikalık Fiyat & 240m Karar Motoru (Giriş, +2R Piramitleme, Stop)
-echo        • 18:15 Akbank ALE Seans Sonu Net Nemalandırma
-start "VIOP_AUTONOMOUS_OPERATOR" /min python -m src.execution.autonomous_operator
+echo [*] 1. VIOP Otonom Canli Operator arkaplanda baslatiliyor...
+echo        - Sabah Baslatma: Fintables.MCP Sozlesmeler, Teminatlar, Margin Call
+echo        - 15-Dakikalik Fiyat ve 240m Karar Motoru (Giris, +2R Piramitleme, Stop)
+echo        - 18:15 Akbank ALE Seans Sonu Net Nemalandirma
+start "VIOP_AUTONOMOUS_OPERATOR" /min cmd.exe /c "python -m src.execution.autonomous_operator"
 
-echo [*] 2. Tarayıcı açılıyor: http://localhost:8501
+echo [*] 2. Tarayici aciliyor: http://localhost:8501
 start "" http://localhost:8501
 
-echo [*] 3. Streamlit Canlı Kokpit başlatılıyor (15 sn Otomatik Yenilemeli)...
-echo        (Tüm işlemleri canlı olarak ekrandan izleyebilirsiniz)
+echo [*] 3. Streamlit Canli Kokpit baslatiliyor (15 sn Otomatik Yenilemeli)...
+echo        (Tum islemleri canli olarak ekrandan izleyebilirsiniz)
 echo.
 python -m streamlit run src/dashboard/app.py --server.port 8501 --server.headless false --theme.base dark
 
