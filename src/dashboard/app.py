@@ -33,6 +33,8 @@ from src.strategy.fundamental_compass import AssetChannel, DirectionalBias, Fund
 from src.strategy.earnings_blackout import BlackoutPhase, EarningsBlackoutManager
 from src.data.viop_feed_scheduler import ViopDataFeedScheduler
 
+_CLOUD_OPERATOR_SOCKET = None
+
 # ==============================================================================
 # BULUT VE SUNUCUDA 7/24 OTONOM OPERATÖR BAŞLATICI (STREAMLIT CLOUD SINGLETON)
 # ==============================================================================
@@ -42,19 +44,22 @@ def ensure_cloud_operator_running() -> str:
     Bulut ortamında (Streamlit Community Cloud / Sunucu)
     arkaplanda 7/24 otonom işlem operatörünü başlatan singleton iş parçacığı.
     """
+    global _CLOUD_OPERATOR_SOCKET
     import threading
+    import logging
     from src.execution.autonomous_operator import AutonomousLiveOperator, acquire_operator_lock
     
     lock = acquire_operator_lock(port=58999)
     if not lock:
         return "OPERATOR_ALREADY_RUNNING"
+    _CLOUD_OPERATOR_SOCKET = lock
         
     def _run_operator_loop():
         try:
             op = AutonomousLiveOperator()
             asyncio.run(op.start_autonomous_loop(interval_seconds=900))
-        except Exception:
-            pass
+        except Exception as e:
+            logging.error("Bulut operatör hatası: %s", e, exc_info=True)
 
     t = threading.Thread(target=_run_operator_loop, daemon=True, name="VIOP_Cloud_Operator")
     t.start()
@@ -171,7 +176,13 @@ if "current_active_nav_tab" not in st.session_state:
 with st.sidebar:
     st.image("https://img.icons8.com/fluency/96/bullish.png", width=64)
     st.title("VİOP Canlı Kokpit")
-    st.caption("v4.2 | 2.000.000 TL Tek Ortak Bütçe | 20 VİOP Sözleşmesi")
+    st.caption("v4.2 | 2.000.000 TL Tek Ortak Bütçe | 63 Dayanak (207 Sözleşme)")
+    st.markdown("""
+    <div style="background-color:#052e16; border:1px solid #16a34a; border-radius:6px; padding:6px 10px; margin-bottom:12px;">
+        <span style="color:#22c55e; font-weight:bold; font-size:12px;">☁️ BULUT ALTYAPISI AKTİF</span><br>
+        <span style="color:#cbd5e1; font-size:11px;">7/24 Kesintisiz Otonom Mod (Bilgisayar Kapalıyken Çalışır)</span>
+    </div>
+    """, unsafe_allow_html=True)
     st.markdown("---")
 
     # Kalıcı Radio Navigasyonu - Menü asla sıfırlanmaz!

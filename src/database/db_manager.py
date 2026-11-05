@@ -6,11 +6,14 @@ SQLite üzerinde kalıcı olarak saklar. 7/24 bulut ortamında Dashboard ve
 çalışma döngüleri bu veritabanı üzerinden senkronize olur.
 """
 
+import os
 from datetime import datetime
 import json
 import sqlite3
 from typing import Any, Dict, List, Optional
 import pandas as pd
+
+DEFAULT_DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "viop_trading.db"))
 
 
 class DatabaseManager:
@@ -18,8 +21,8 @@ class DatabaseManager:
     SQLite Tabanlı Kalıcı Durum ve Metrik Yöneticisi.
     """
 
-    def __init__(self, db_path: str = "viop_trading.db") -> None:
-        self.db_path = db_path
+    def __init__(self, db_path: Optional[str] = None) -> None:
+        self.db_path = db_path or DEFAULT_DB_PATH
         self._init_tables()
 
     def _get_connection(self) -> sqlite3.Connection:
