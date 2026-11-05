@@ -30,6 +30,36 @@ from src.strategy.earnings_blackout import BlackoutPhase, EarningsBlackoutManage
 from src.data.viop_feed_scheduler import ViopDataFeedScheduler
 
 # ==============================================================================
+# BULUT VE SUNUCUDA 7/24 OTONOM OPERATÖR BAŞLATICI (STREAMLIT CLOUD SINGLETON)
+# ==============================================================================
+@st.cache_resource
+def ensure_cloud_operator_running() -> str:
+    """
+    Bulut ortamında (Streamlit Community Cloud / Sunucu)
+    arkaplanda 7/24 otonom işlem operatörünü başlatan singleton iş parçacığı.
+    """
+    import threading
+    from src.execution.autonomous_operator import AutonomousLiveOperator, acquire_operator_lock
+    
+    lock = acquire_operator_lock(port=58999)
+    if not lock:
+        return "OPERATOR_ALREADY_RUNNING"
+        
+    def _run_operator_loop():
+        try:
+            op = AutonomousLiveOperator()
+            asyncio.run(op.start_autonomous_loop(interval_seconds=900))
+        except Exception:
+            pass
+
+    t = threading.Thread(target=_run_operator_loop, daemon=True, name="VIOP_Cloud_Operator")
+    t.start()
+    return "OPERATOR_STARTED_IN_CLOUD"
+
+# Bulut operatörünü tetikle (Yerelde çalışıyorsa çift kopya açmaz, bulutta otomatik devralır)
+cloud_op_status = ensure_cloud_operator_running()
+
+# ==============================================================================
 # SAYFA VE TEMA YAPILANDIRMASI (DARK TERMINAL THEME)
 # ==============================================================================
 st.set_page_config(
