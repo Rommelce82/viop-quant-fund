@@ -379,6 +379,51 @@ if selected_menu == "🏛️ Canlı Kasa & ALE Fonu":
         st.info("🛡️ Şu anda açık VİOP pozisyonu bulunmamaktadır. 2.000.000 TL serbest nakdin %100'ü Akbank ALE fonunda gecelik net %39.60 faizle değerlendirilmektedir.")
 
     st.markdown("---")
+    st.subheader("🎯 Seans Öncesi Planlama & Tetik Radarı (Dün Kapanış Kararları)")
+    st.markdown("""
+    > **Neden Seans Açılmadan Önce Pasif / Taslak Emir Girilmez? (Ali Perşembe Doktrini)**
+    > * **VİOP Seans Açılışı (09:30):** Borsa İstanbul VİOP seansı saat 09:30'da başlar. Seans açılmadan tahtaya körleme emir girmek, sabah eşleşmesinde ve olası ters haber gaplerinde sermayeyi riske atar.
+    > * **09:30 - 10:15 Açılış Çalkantısı Kalkanı (`REJECT_TIME_OPENING`):** Açılışın ilk 45 dakikasındaki suni açılış çalkantısı ve manipülatif tuzaklar sönümlenene kadar sistem koruma modundadır.
+    > * **Canlı Tetik Mekanizması:** Sistem dünkü 240m tepe/dip seviyelerini ve savunma kurallarını belleğe almıştır. Saat 10:15 sonrasında canlı seans fiyatları aşağıdaki tetik seviyelerini hacimle kırdığında emirler anında üretilir ve icra edilir.
+    """)
+
+    if live_market_state and "contracts" in live_market_state:
+        radar_rows = []
+        for sym, c_info in live_market_state["contracts"].items():
+            cat = c_info.get("type", "EQUITY")
+            lp = c_info.get("last_price", 0.0)
+            bar240 = c_info.get("last_240m_bar", {})
+            h = bar240.get("high", lp)
+            l = bar240.get("low", lp)
+            o = bar240.get("open", lp)
+            c = bar240.get("close", lp)
+            rng = h - l
+            wick = h - max(o, c)
+            w_pct = (wick / rng * 100.0) if rng > 0 else 0.0
+
+            if cat == "FX":
+                status = "🛡️ ALE Repo Fonunda (TRY Çıplak Kırılım Kapalı)"
+                trigger_level = "-"
+            elif w_pct >= 40.0:
+                status = f"⚠️ Üst Fitil Yüksek (%{w_pct:.1f} > %40 - Satıcı Baskısı)"
+                trigger_level = f">{h:,.2f} TL (Tepenin Aşılması Şart)"
+            else:
+                status = "👀 10:15 Sonrası Kırılım Gözleniyor (Pozitif İvme)"
+                trigger_level = f">{h:,.2f} TL (Direnç Kırılımı)"
+
+            radar_rows.append({
+                "Sözleşme": sym,
+                "Sınıf": cat,
+                "Dün Kapanış Fiyatı": f"{lp:,.2f} TL",
+                "240m Direnç (Tetik Seviyesi)": trigger_level,
+                "Üst Fitil Baskısı": f"%{w_pct:.1f}",
+                "Seans Planı & Savunma Durumu": status
+            })
+
+        df_radar = pd.DataFrame(radar_rows)
+        st.dataframe(df_radar, use_container_width=True, height=300)
+
+    st.markdown("---")
     st.subheader("📈 2.000.000 TL Canlı Portföy Sermaye Eğrisi (Equity Curve)")
     eq_df = db.get_equity_curve_df()
     if not eq_df.empty and len(eq_df) > 1:
