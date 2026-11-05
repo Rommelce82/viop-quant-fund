@@ -331,25 +331,41 @@ class AutonomousLiveOperator:
         }
 
     async def fetch_contract_data(self, ticker: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-        """Yahoo Finance ve BIST proxy üzerinden 15m barları çeker, 120m ve 240m barlara resample eder."""
-        raw_15m = yf.download(ticker, period="5d", interval="15m", progress=False)
-        if isinstance(raw_15m.columns, pd.MultiIndex):
-            raw_15m.columns = raw_15m.columns.get_level_values(0)
-        raw_15m = raw_15m.reset_index()
-        t_col = "Datetime" if "Datetime" in raw_15m.columns else "Date"
+        """Yahoo Finance üzerinden 60 günlük 1h verilerini çeker, 120m ve 240m barlara resample eder."""
+        raw_1h = yf.download(ticker, period="60d", interval="1h", progress=False)
+        if isinstance(raw_1h.columns, pd.MultiIndex):
+            raw_1h.columns = raw_1h.columns.get_level_values(0)
+        raw_1h = raw_1h.reset_index()
+        t_col = "Datetime" if "Datetime" in raw_1h.columns else "Date"
 
-        df_15m = pd.DataFrame({
-            "timestamp": pd.to_datetime(raw_15m[t_col]).dt.tz_localize(None),
-            "open": raw_15m["Open"].astype(float),
-            "high": raw_15m["High"].astype(float),
-            "low": raw_15m["Low"].astype(float),
-            "close": raw_15m["Close"].astype(float),
-            "volume": raw_15m["Volume"].astype(float) if "Volume" in raw_15m.columns else 0.0
+        df_1h = pd.DataFrame({
+            "timestamp": pd.to_datetime(raw_1h[t_col]).dt.tz_localize(None),
+            "open": raw_1h["Open"].astype(float),
+            "high": raw_1h["High"].astype(float),
+            "low": raw_1h["Low"].astype(float),
+            "close": raw_1h["Close"].astype(float),
+            "volume": raw_1h["Volume"].astype(float) if "Volume" in raw_1h.columns else 0.0
         }).dropna().sort_values("timestamp").reset_index(drop=True)
 
-        df_120m = self.resample_ohlcv(df_15m, 120)
-        df_240m = self.resample_ohlcv(df_15m, 240)
-        return df_15m, df_120m, df_240m
+        if df_1h.empty:
+            # Fallback 5d 15m
+            raw_15m = yf.download(ticker, period="5d", interval="15m", progress=False)
+            if isinstance(raw_15m.columns, pd.MultiIndex):
+                raw_15m.columns = raw_15m.columns.get_level_values(0)
+            raw_15m = raw_15m.reset_index()
+            t_col_15 = "Datetime" if "Datetime" in raw_15m.columns else "Date"
+            df_1h = pd.DataFrame({
+                "timestamp": pd.to_datetime(raw_15m[t_col_15]).dt.tz_localize(None),
+                "open": raw_15m["Open"].astype(float),
+                "high": raw_15m["High"].astype(float),
+                "low": raw_15m["Low"].astype(float),
+                "close": raw_15m["Close"].astype(float),
+                "volume": raw_15m["Volume"].astype(float) if "Volume" in raw_15m.columns else 0.0
+            }).dropna().sort_values("timestamp").reset_index(drop=True)
+
+        df_120m = self.resample_ohlcv(df_1h, 120)
+        df_240m = self.resample_ohlcv(df_1h, 240)
+        return df_1h, df_120m, df_240m
 
     async def execute_autonomous_cycle(self) -> Dict[str, Any]:
         """
