@@ -34,6 +34,7 @@ class PaperTradeExecution:
     realized_pnl_try: float
     timestamp: datetime
     rationale: str
+    executed_successfully: bool = True
 
 
 class PaperBroker:
@@ -57,6 +58,43 @@ class PaperBroker:
         self.market_prices: Dict[str, float] = {}
         self.trade_history: List[PaperTradeExecution] = []
         self._trade_counter = 0
+
+    def restore_positions_from_db(self, db_positions: List[Dict[str, Any]]) -> None:
+        """
+        Süreç yeniden başlatıldığında veritabanındaki aktif pozisyonları
+        ve stop/maliyet durumlarını bellek havuzuna eksiksiz geri yükler (P0 Çözümü).
+        """
+        for row in db_positions:
+            sym = row["symbol"]
+            side = str(row.get("side", "LONG")).upper()
+            lots_raw = int(row.get("lots", 1))
+            effective_lots = lots_raw if side == "LONG" else -lots_raw
+            entry_p = float(row.get("entry_price", 0.0))
+            init_stop = float(row.get("initial_stop", entry_p))
+            trail_stop = float(row.get("trailing_stop", init_stop))
+            bars_held = int(row.get("bars_held", 0))
+            entry_t = row.get("entry_time")
+            if isinstance(entry_t, str):
+                try:
+                    entry_t = datetime.fromisoformat(entry_t)
+                except Exception:
+                    entry_t = datetime.utcnow()
+            elif not isinstance(entry_t, datetime):
+                entry_t = datetime.utcnow()
+
+            pos = PositionState(
+                symbol=sym,
+                entry_price=entry_p,
+                initial_stop=init_stop,
+                trailing_stop=trail_stop,
+                lots=effective_lots,
+                bars_held=bars_held,
+                entry_time=entry_t,
+                r_unit_price=abs(entry_p - init_stop)
+            )
+            self.open_positions[sym] = pos
+            if "current_price" in row and float(row["current_price"]) > 0:
+                self.market_prices[sym] = float(row["current_price"])
 
     def update_market_price(self, symbol: str, price: float) -> None:
         """Piyasa fiyatını günceller (Mark-to-Market değerleme için)."""

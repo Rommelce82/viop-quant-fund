@@ -615,39 +615,38 @@ class TechnicalExecutioner:
         bar_open = float(current_bar["open"])
         bar_range = bar_high - bar_low
         is_expansion_bar = bar_range > (2.0 * hourly_atr)
+        wick_thresh = 0.65 if is_index else (0.55 if is_expansion_bar else 0.40)
+        upper_wick_ratio = (bar_high - max(bar_open, current_price)) / bar_range if bar_range > 0 else 0.0
+        lower_wick_ratio = (min(bar_open, current_price) - bar_low) / bar_range if bar_range > 0 else 0.0
+        has_excessive_upper_wick = (upper_wick_ratio > wick_thresh)
+        has_excessive_lower_wick = (lower_wick_ratio > 0.50)
 
-        if bar_range > 0 and dir_bias in (DirectionalBias.ONLY_LONG, DirectionalBias.BI_DIRECTIONAL):
-            upper_wick = bar_high - max(bar_open, current_price)
-            upper_wick_ratio = upper_wick / bar_range
-            wick_thresh = 0.65 if is_index else (0.55 if is_expansion_bar else 0.40)
-            if upper_wick_ratio > wick_thresh:
-                return TechnicalDecisionV4(
-                    action=ExecutionActionV4.REJECT_WICK_EXCESSIVE,
-                    symbol=symbol,
-                    target_lots=0,
-                    entry_price=current_price,
-                    stop_price=0.0,
-                    take_profit_target=0.0,
-                    expected_rr_ratio=0.0,
-                    reason=f"REJECT_WICK_EXCESSIVE: Kırılım barında Üst Fitil %{upper_wick_ratio*100:.1f} > %{wick_thresh*100:.0f}. Satıcı baskısı tespit edildi, Long veto edildi.",
-                    metrics={"upper_wick_ratio": upper_wick_ratio}
-                )
+        # Tek Yönlü Filtreler (ONLY_LONG / ONLY_SHORT erken vetosu)
+        if bar_range > 0 and dir_bias == DirectionalBias.ONLY_LONG and has_excessive_upper_wick:
+            return TechnicalDecisionV4(
+                action=ExecutionActionV4.REJECT_WICK_EXCESSIVE,
+                symbol=symbol,
+                target_lots=0,
+                entry_price=current_price,
+                stop_price=0.0,
+                take_profit_target=0.0,
+                expected_rr_ratio=0.0,
+                reason=f"REJECT_WICK_EXCESSIVE: Kırılım barında Üst Fitil %{upper_wick_ratio*100:.1f} > %{wick_thresh*100:.0f}. Satıcı baskısı tespit edildi, Long veto edildi.",
+                metrics={"upper_wick_ratio": upper_wick_ratio}
+            )
 
-        if bar_range > 0 and dir_bias in (DirectionalBias.ONLY_SHORT, DirectionalBias.BI_DIRECTIONAL):
-            lower_wick = min(bar_open, current_price) - bar_low
-            lower_wick_ratio = lower_wick / bar_range
-            if lower_wick_ratio > 0.50:
-                return TechnicalDecisionV4(
-                    action=ExecutionActionV4.REJECT_WICK_EXCESSIVE,
-                    symbol=symbol,
-                    target_lots=0,
-                    entry_price=current_price,
-                    stop_price=0.0,
-                    take_profit_target=0.0,
-                    expected_rr_ratio=0.0,
-                    reason=f"REJECT_WICK_EXCESSIVE: Düşüş barında Alt Fitil %{lower_wick_ratio*100:.1f} > %50. Alıcı tepkisi tespit edildi, Short veto edildi.",
-                    metrics={"lower_wick_ratio": lower_wick_ratio}
-                )
+        if bar_range > 0 and dir_bias == DirectionalBias.ONLY_SHORT and has_excessive_lower_wick:
+            return TechnicalDecisionV4(
+                action=ExecutionActionV4.REJECT_WICK_EXCESSIVE,
+                symbol=symbol,
+                target_lots=0,
+                entry_price=current_price,
+                stop_price=0.0,
+                take_profit_target=0.0,
+                expected_rr_ratio=0.0,
+                reason=f"REJECT_WICK_EXCESSIVE: Düşüş barında Alt Fitil %{lower_wick_ratio*100:.1f} > %50. Alıcı tepkisi tespit edildi, Short veto edildi.",
+                metrics={"lower_wick_ratio": lower_wick_ratio}
+            )
 
         # [KURAL]: Inside Bar (İç Bar) Filtresi
         if len(hourly_data) >= 2:
@@ -759,6 +758,7 @@ class TechnicalExecutioner:
         # =====================================================================
         # LONG GİRİŞ KONTROLÜ (B-Tarzı Breakout & A-Tarzı Destek Tepkisi)
         # =====================================================================
+        wick_rejected_reason = None
         can_evaluate_long = (dir_bias in (DirectionalBias.ONLY_LONG, DirectionalBias.BI_DIRECTIONAL)) or is_daily_bull
 
         if can_evaluate_long and is_daily_bull:
@@ -780,6 +780,12 @@ class TechnicalExecutioner:
 
             # A-Tarzı: Hisse ve emtiada trend içi retest veya yatay piyasada ortalamaya dönüş
             is_a_long = (asset_class != "INDEX") and (not is_trending or is_rsi_oversold) and is_at_support and is_green_candle and is_a_confirmed and (current_vol >= 0.8 * vol_sma20 or is_index)
+
+            # Ali Perşembe Kural 18: Kırılım barında aşırı üst fitil boğa tuzağıdır (Long iptal edilir)
+            if (is_b_long or is_a_long) and has_excessive_upper_wick:
+                wick_rejected_reason = f"REJECT_WICK_EXCESSIVE: Kırılım barında Üst Fitil %{upper_wick_ratio*100:.1f} > %{wick_thresh*100:.0f}. Satıcı baskısı tespit edildi, Long veto edildi."
+                is_b_long = False
+                is_a_long = False
 
             if is_b_long or is_a_long:
                 # DIOSC Filtresi (B-Tarzında teyit aranır)
@@ -886,6 +892,12 @@ class TechnicalExecutioner:
             is_at_resistance = is_bollinger_touch_upper or is_near_ema20
             is_a_short = (asset_class != "INDEX") and (not is_trending or is_rsi_overbought) and is_at_resistance and is_red_candle and (current_vol >= 0.8 * vol_sma20 or is_index)
 
+            # Ali Perşembe Kural 18: Düşüş barında aşırı alt fitil ayı tuzağıdır (Short iptal edilir)
+            if (is_b_short or is_a_short) and has_excessive_lower_wick:
+                wick_rejected_reason = f"REJECT_WICK_EXCESSIVE: Düşüş barında Alt Fitil %{lower_wick_ratio*100:.1f} > %50. Alıcı tepkisi tespit edildi, Short veto edildi."
+                is_b_short = False
+                is_a_short = False
+
             if is_b_short or is_a_short:
                 # DIOSC Filtresi (B-Tarzında teyit aranır)
                 if is_b_short and not is_index and cur_diosc > cur_diosc_sig:
@@ -970,6 +982,20 @@ class TechnicalExecutioner:
                         "vol_scale": vol_scale
                     }
                 )
+
+        # Fitil reddi oluşmuşsa raporla
+        if wick_rejected_reason is not None:
+            return TechnicalDecisionV4(
+                action=ExecutionActionV4.REJECT_WICK_EXCESSIVE,
+                symbol=symbol,
+                target_lots=0,
+                entry_price=current_price,
+                stop_price=0.0,
+                take_profit_target=0.0,
+                expected_rr_ratio=0.0,
+                reason=wick_rejected_reason,
+                metrics={"upper_wick_ratio": upper_wick_ratio, "lower_wick_ratio": lower_wick_ratio}
+            )
 
         # [KURAL]: Testere Kalkanı (ADX < 20.0)
         # Ali Perşembe Doktrini: ADX < 20 testere piyasasını temsil eder.

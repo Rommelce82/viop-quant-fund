@@ -297,11 +297,15 @@ class Expanded2MPortfolioTester:
                         gross_pnl = (exec_price - pos.entry_price) * lots_req * c_meta.contract_multiplier
                     else:
                         gross_pnl = (pos.entry_price - exec_price) * lots_req * c_meta.contract_multiplier
-                    net_pnl = gross_pnl - exit_comm
+                    
+                    # Giriş komisyonunu kısmi çıkış oranında paylaştır (P0 Mutabakat Düzeltmesi)
+                    prop_entry_comm = pos.entry_commission_paid * (lots_req / max(1, abs(pos.lots)))
+                    pos.entry_commission_paid = max(0.0, pos.entry_commission_paid - prop_entry_comm)
+                    net_pnl = gross_pnl - prop_entry_comm - exit_comm
 
                     released_margin = lots_req * c_meta.initial_margin_try
                     locked_margins[sym] = max(0.0, locked_margins[sym] - released_margin)
-                    cash += net_pnl
+                    cash += (gross_pnl - exit_comm)
 
                     trade_counter += 1
                     r_realized = (net_pnl / (pos.r_unit_price * lots_req)) if pos.r_unit_price > 0 else 0.0
@@ -317,8 +321,8 @@ class Expanded2MPortfolioTester:
                         initial_stop=pos.initial_stop,
                         r_unit=pos.r_unit_price,
                         realized_pnl=round(net_pnl, 2),
-                        commission_paid=round(exit_comm, 2),
-                        entry_commission=0.0,
+                        commission_paid=round(prop_entry_comm + exit_comm, 2),
+                        entry_commission=round(prop_entry_comm, 2),
                         exit_commission=round(exit_comm, 2),
                         slippage_paid=round(exec_slip * lots_req * c_meta.contract_multiplier, 2),
                         exit_reason="SCALE_OUT_33",
@@ -362,10 +366,12 @@ class Expanded2MPortfolioTester:
                         gross_pnl = (exec_price - pos.entry_price) * lots_to_close * c_meta.contract_multiplier
                     else:
                         gross_pnl = (pos.entry_price - exec_price) * lots_to_close * c_meta.contract_multiplier
-                    net_pnl = gross_pnl - exit_comm
+                    
+                    rem_entry_comm = pos.entry_commission_paid
+                    net_pnl = gross_pnl - rem_entry_comm - exit_comm
 
                     released_margin = locked_margins.pop(sym, 0.0)
-                    cash += net_pnl
+                    cash += (gross_pnl - exit_comm)
 
                     trade_counter += 1
                     r_realized = (net_pnl / (pos.r_unit_price * lots_to_close)) if pos.r_unit_price > 0 else 0.0
@@ -381,8 +387,8 @@ class Expanded2MPortfolioTester:
                         initial_stop=pos.initial_stop,
                         r_unit=pos.r_unit_price,
                         realized_pnl=round(net_pnl, 2),
-                        commission_paid=round(exit_comm, 2),
-                        entry_commission=0.0,
+                        commission_paid=round(rem_entry_comm + exit_comm, 2),
+                        entry_commission=round(rem_entry_comm, 2),
                         exit_commission=round(exit_comm, 2),
                         slippage_paid=round(exec_slip * lots_to_close * c_meta.contract_multiplier, 2),
                         exit_reason=str(order_action),
@@ -471,8 +477,7 @@ class Expanded2MPortfolioTester:
                     continue
 
                 f_data = asset_funds.get(sym)
-                if pos_state is not None and pos_state.is_active:
-                    pos_state.bars_held += 1
+                # P0 Çözümü: bars_held sayacı sadece TechnicalExecutioner içinde artırılır, çift artırım engellendi.
 
                 # Temel Pusula ve Yön İzni
                 if pos_state is not None and pos_state.is_active:
@@ -560,10 +565,12 @@ class Expanded2MPortfolioTester:
                 gross_pnl = (exec_price - pos.entry_price) * lots_to_close * c_meta.contract_multiplier
             else:
                 gross_pnl = (pos.entry_price - exec_price) * lots_to_close * c_meta.contract_multiplier
-            net_pnl = gross_pnl - exit_comm
+            
+            rem_entry_comm = pos.entry_commission_paid
+            net_pnl = gross_pnl - rem_entry_comm - exit_comm
 
             released_margin = locked_margins.pop(sym, 0.0)
-            cash += net_pnl
+            cash += (gross_pnl - exit_comm)
 
             trade_counter += 1
             completed_trades.append(TradeRecord(
@@ -578,8 +585,8 @@ class Expanded2MPortfolioTester:
                 initial_stop=pos.initial_stop,
                 r_unit=pos.r_unit_price,
                 realized_pnl=round(net_pnl, 2),
-                commission_paid=round(exit_comm, 2),
-                entry_commission=0.0,
+                commission_paid=round(rem_entry_comm + exit_comm, 2),
+                entry_commission=round(rem_entry_comm, 2),
                 exit_commission=round(exit_comm, 2),
                 slippage_paid=round(exec_slip * lots_to_close * c_meta.contract_multiplier, 2),
                 exit_reason="END_OF_BACKTEST_CLOSEOUT",
@@ -619,7 +626,9 @@ class Expanded2MPortfolioTester:
             "initial_capital": self.initial_capital,
             "final_nav": round(final_nav, 2),
             "trade_net_pnl": round(total_trade_pnl, 2),
+            "pure_trading_return_pct": round((total_trade_pnl / self.initial_capital) * 100.0, 2),
             "ale_net_income": round(total_ale_net_income, 2),
+            "ale_nema_return_pct": round((total_ale_net_income / self.initial_capital) * 100.0, 2),
             "ale_tax_paid": round(total_ale_tax_paid, 2),
             "total_return_pct": round(total_return_pct, 2),
             "total_trades": len(completed_trades),

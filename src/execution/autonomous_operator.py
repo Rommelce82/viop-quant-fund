@@ -146,6 +146,20 @@ class AutonomousLiveOperator:
 
         self.broker = PaperBroker(initial_capital=active_capital, config=self.config)
         self.risk_manager = PortfolioRiskManager(initial_capital=active_capital)
+
+        # P0 Çözümü 1: Süreç yeniden başlatıldığında açık pozisyonları veritabanından geri yükle
+        saved_positions = self.db.get_active_positions()
+        if saved_positions:
+            self.broker.restore_positions_from_db(saved_positions)
+            logger.info("✓ [RESTART BAŞARILI] Veritabanından %d adet açık pozisyon bellek havuzuna geri yüklendi.", len(saved_positions))
+
+        # P0 Çözümü 2: Risk yöneticisi durumunu geri yükle
+        if latest_sys:
+            if "consecutive_losses" in latest_sys:
+                self.risk_manager.state.consecutive_losses = int(latest_sys["consecutive_losses"])
+            if "circuit_breaker_active" in latest_sys:
+                self.risk_manager.state.circuit_breaker_active = bool(latest_sys["circuit_breaker_active"])
+
         self.executioner = TechnicalExecutioner(config=self.config)
         self.compass = FundamentalCompass()
         self.scheduler = ViopDataFeedScheduler(db=self.db)
@@ -217,9 +231,10 @@ class AutonomousLiveOperator:
             records = []
             df["date"] = df["timestamp"].dt.date
             for d, group in df.groupby("date", sort=True):
-                midday = group[group["timestamp"].dt.hour <= 14]
+                # P0 Çözümü: Öğle seansı barı saat 14:15 ve öncesi barları kapsar
+                midday = group[group["timestamp"].dt.time <= time(14, 15)]
                 if not midday.empty:
-                    bar_time = datetime.combine(d, datetime.min.time()).replace(hour=14, minute=15)
+                    bar_time = datetime.combine(d, time(14, 15))
                     records.append({
                         "timestamp": bar_time,
                         "open": float(midday["open"].iloc[0]),
@@ -228,9 +243,10 @@ class AutonomousLiveOperator:
                         "close": float(midday["close"].iloc[-1]),
                         "volume": float(midday["volume"].sum())
                     })
-                close_grp = group[group["timestamp"].dt.hour > 14]
+                # Kapanış seansı barı: 14:15 sonrası ile 18:15 arası barları kapsar
+                close_grp = group[(group["timestamp"].dt.time > time(14, 15)) & (group["timestamp"].dt.time <= time(18, 15))]
                 if not close_grp.empty:
-                    bar_time = datetime.combine(d, datetime.min.time()).replace(hour=18, minute=15)
+                    bar_time = datetime.combine(d, time(18, 15))
                     records.append({
                         "timestamp": bar_time,
                         "open": float(close_grp["open"].iloc[0]),
@@ -451,7 +467,18 @@ class AutonomousLiveOperator:
                 )
 
                 action = tech_decision.action
-                is_entry = action in (ExecutionActionV4.ENTER_LONG, ExecutionActionV4.ENTER_SHORT)
+                # P0 Çözümü 3: A-Tarzı, B-Tarzı, Kaçış Boşluğu ve Piramitleme emirlerini eksiksiz icraya al
+                ENTRY_ACTIONS = {
+                    ExecutionActionV4.ENTER_LONG,
+                    ExecutionActionV4.ENTER_LONG_B_TYPE,
+                    ExecutionActionV4.ENTER_LONG_A_TYPE,
+                    ExecutionActionV4.ENTER_SHORT,
+                    ExecutionActionV4.ENTER_SHORT_B_TYPE,
+                    ExecutionActionV4.ENTER_SHORT_A_TYPE,
+                    ExecutionActionV4.ENTER_BREAKAWAY_GAP,
+                    ExecutionActionV4.PYRAMID_ADD_33
+                }
+                is_entry = action in ENTRY_ACTIONS
                 is_exit = action in (
                     ExecutionActionV4.SCALE_OUT_33,
                     ExecutionActionV4.SCALE_OUT_50,
@@ -461,6 +488,8 @@ class AutonomousLiveOperator:
                     ExecutionActionV4.FRIDAY_CLOSE_EXIT
                 )
 
+                # Güncel portföy değerine göre anlık devre kesici kontrolü
+                cb_active, cb_reason = self.risk_manager.check_circuit_breaker()
                 if cb_active and is_entry:
                     logger.warning("🚨 [DEVRE KESİCİ AKTİF] %s giriş emri engellendi: %s", sym, cb_reason)
                 elif is_entry or is_exit:
@@ -474,7 +503,7 @@ class AutonomousLiveOperator:
                         "timestamp": now
                     }
                     exec_record = self.broker.execute_virtual_order(order_details)
-                    if exec_record.executed_successfully:
+                    if exec_record and exec_record.executed_successfully:
                         executed_trades.append({
                             "symbol": sym,
                             "action": action.value,
@@ -487,6 +516,11 @@ class AutonomousLiveOperator:
                                     sym, action.value, exec_record.lots, exec_record.execution_price, exec_record.realized_pnl_try)
 
                         if exec_record.realized_pnl_try != 0.0:
+                            # P0 Çözümü 4: Risk yöneticisine gerçekleşen K/Z bilgisini besle
+                            self.risk_manager.record_trade_result(
+                                pnl=exec_record.realized_pnl_try,
+                                nav=self.broker.current_nav
+                            )
                             self.db.record_trade({
                                 "trade_id": f"TRD_{now.strftime('%Y%m%d%H%M%S')}_{sym}",
                                 "symbol": sym,
