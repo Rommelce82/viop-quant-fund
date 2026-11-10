@@ -517,26 +517,32 @@ class AutonomousLiveOperator:
 
                         if exec_record.realized_pnl_try != 0.0:
                             # P0 Çözümü 4: Risk yöneticisine gerçekleşen K/Z bilgisini besle
+                            trade_side = "LONG" if "LONG" in action.value else "SHORT"
                             self.risk_manager.record_trade_result(
                                 pnl=exec_record.realized_pnl_try,
+                                symbol=sym,
+                                side=trade_side,
                                 nav=self.broker.current_nav
                             )
-                            self.db.record_trade({
-                                "trade_id": f"TRD_{now.strftime('%Y%m%d%H%M%S')}_{sym}",
-                                "symbol": sym,
-                                "side": "LONG" if "LONG" in action.value else "SHORT",
-                                "lots": exec_record.lots,
-                                "entry_price": exec_record.execution_price,
-                                "exit_price": curr_p,
-                                "entry_time": now.isoformat(),
-                                "exit_time": now.isoformat(),
-                                "pnl_try": exec_record.realized_pnl_try,
-                                "r_multiple": 1.0,
-                                "exit_reason": action.value
-                            })
+                            try:
+                                self.db.record_trade({
+                                    "trade_id": f"TRD_{now.strftime('%Y%m%d%H%M%S')}_{sym}",
+                                    "symbol": sym,
+                                    "side": trade_side,
+                                    "lots": exec_record.lots,
+                                    "entry_price": exec_record.execution_price,
+                                    "exit_price": curr_p,
+                                    "entry_time": now.isoformat(),
+                                    "exit_time": now.isoformat(),
+                                    "pnl_try": exec_record.realized_pnl_try,
+                                    "r_multiple": 1.0,
+                                    "exit_reason": action.value
+                                })
+                            except Exception as db_err:
+                                logger.error("İşlem DB kaydı yapılamadı (%s): %s", sym, db_err)
 
             except Exception as e:
-                logger.debug("%s sözleşmesi değerlendirilirken hata: %s", sym, e)
+                logger.error("%s sözleşmesi değerlendirilirken hata oluştu: %s", sym, e, exc_info=True)
 
         # 4. Açık Pozisyonları ve Sistem Durumunu Senkronize Et
         db_positions = []

@@ -17,7 +17,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, date
 from enum import Enum
 import math
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 import pandas as pd
 
 
@@ -153,14 +153,16 @@ class PortfolioRiskManager:
             return 0.01  # %1
         return 0.02      # %2
 
-    def record_trade_result(self, pnl: float, symbol: str, side: str) -> None:
+    def record_trade_result(self, pnl: float, symbol: str = "", side: str = "", **kwargs: Any) -> None:
         """İşlem sonucunu (kâr/zarar) ve stop serisini günceller."""
         if pnl < 0:
             self.state.consecutive_losses += 1
             # Whipsaw kalkanı için stop yönünü kaydet
-            if symbol not in self.state.stopped_sides_today:
-                self.state.stopped_sides_today[symbol] = set()
-            self.state.stopped_sides_today[symbol].add(side.upper())
+            if symbol:
+                if symbol not in self.state.stopped_sides_today:
+                    self.state.stopped_sides_today[symbol] = set()
+                if side:
+                    self.state.stopped_sides_today[symbol].add(side.upper())
         else:
             self.state.consecutive_losses = 0
 
