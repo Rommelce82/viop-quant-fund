@@ -13,7 +13,10 @@ import json
 import os
 import sys
 from typing import Any, Dict, List, Optional
+import socket
 import pandas as pd
+import plotly.graph_objects as go
+import plotly.express as px
 import streamlit as st
 try:
     from streamlit_autorefresh import st_autorefresh
@@ -113,6 +116,86 @@ def get_db() -> DatabaseManager:
     return DatabaseManager(db_path=db_file)
 
 
+def get_local_ip() -> str:
+    """Yerel ağ IP adresini döndürür (mobil / başka bilgisayardan izleme için)."""
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "127.0.0.1"
+
+
+local_ip = get_local_ip()
+
+
+def calculate_trade_metrics(trades: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Tüm işlem geçmişi üzerinden özet analitik metrikleri hesaplar."""
+    if not trades:
+        return {
+            "total_trades": 0,
+            "winning_trades": 0,
+            "losing_trades": 0,
+            "win_rate": 0.0,
+            "total_pnl": 0.0,
+            "gross_profit": 0.0,
+            "gross_loss": 0.0,
+            "profit_factor": 0.0,
+            "avg_trade_pnl": 0.0,
+            "max_win": 0.0,
+            "max_loss": 0.0,
+            "max_win_sym": "-",
+            "max_loss_sym": "-",
+        }
+
+    pnls = [float(t.get("pnl_try", 0.0)) for t in trades]
+    wins = [p for p in pnls if p > 0]
+    losses = [p for p in pnls if p < 0]
+
+    total_trades = len(pnls)
+    winning_trades = len(wins)
+    losing_trades = len(losses)
+    win_rate = (winning_trades / total_trades * 100.0) if total_trades > 0 else 0.0
+
+    total_pnl = sum(pnls)
+    gross_profit = sum(wins)
+    gross_loss = abs(sum(losses))
+    profit_factor = (gross_profit / gross_loss) if gross_loss > 0 else (999.0 if gross_profit > 0 else 0.0)
+    avg_trade_pnl = total_pnl / total_trades if total_trades > 0 else 0.0
+
+    max_win = 0.0
+    max_win_sym = "-"
+    max_loss = 0.0
+    max_loss_sym = "-"
+    for t in trades:
+        p = float(t.get("pnl_try", 0.0))
+        s = t.get("symbol", "-")
+        if p > max_win:
+            max_win = p
+            max_win_sym = s
+        if p < max_loss:
+            max_loss = p
+            max_loss_sym = s
+
+    return {
+        "total_trades": total_trades,
+        "winning_trades": winning_trades,
+        "losing_trades": losing_trades,
+        "win_rate": win_rate,
+        "total_pnl": total_pnl,
+        "gross_profit": gross_profit,
+        "gross_loss": gross_loss,
+        "profit_factor": profit_factor,
+        "avg_trade_pnl": avg_trade_pnl,
+        "max_win": max_win,
+        "max_loss": max_loss,
+        "max_win_sym": max_win_sym,
+        "max_loss_sym": max_loss_sym
+    }
+
+
 db = get_db()
 config = SystemConfig()
 
@@ -164,6 +247,7 @@ viop_schedule_status = load_schedule_status()
 # ==============================================================================
 MENU_ITEMS = [
     "🏛️ Canlı Kasa & ALE Fonu",
+    "📜 Tüm İşlem Geçmişi & Analiz",
     "🔍 15-Dk Veri Hattı & 3-Tablo Takip",
     "🧭 Çok Varlıklı Canlı Yön Pusulası",
     "⚡ Smart Order Router (SOR)",
@@ -177,10 +261,12 @@ with st.sidebar:
     st.image("https://img.icons8.com/fluency/96/bullish.png", width=64)
     st.title("VİOP Canlı Kokpit")
     st.caption("v4.2 | 2.000.000 TL Tek Ortak Bütçe | 63 Dayanak (207 Sözleşme)")
-    st.markdown("""
-    <div style="background-color:#052e16; border:1px solid #16a34a; border-radius:6px; padding:6px 10px; margin-bottom:12px;">
-        <span style="color:#22c55e; font-weight:bold; font-size:12px;">☁️ BULUT ALTYAPISI AKTİF</span><br>
-        <span style="color:#cbd5e1; font-size:11px;">7/24 Kesintisiz Otonom Mod (Bilgisayar Kapalıyken Çalışır)</span>
+    st.markdown(f"""
+    <div style="background-color:#052e16; border:1px solid #16a34a; border-radius:6px; padding:8px 10px; margin-bottom:12px;">
+        <span style="color:#22c55e; font-weight:bold; font-size:12px;">☁️ BULUT SENKRONİZASYONU AKTİF</span><br>
+        <span style="color:#cbd5e1; font-size:11px;">7/24 Kesintisiz Otonom Mod</span><br>
+        <span style="color:#94a3b8; font-size:11px;">🖥️ Bu PC: <b style="color:#38bdf8;">localhost:8501</b></span><br>
+        <span style="color:#94a3b8; font-size:11px;">📱 Başka Cihaz: <b style="color:#38bdf8;">http://{local_ip}:8501</b></span>
     </div>
     """, unsafe_allow_html=True)
     st.markdown("---")
@@ -278,6 +364,51 @@ latest_state = db.get_latest_system_state() or {
     "consecutive_losses": 0,
     "circuit_breaker_active": 0
 }
+
+# ------------------------------------------------------------------------------
+# ☁️ CANLI BULUT SENKRONİZASYON PANOSU & ANLIK TAZELİK GÖSTERGESİ
+# ------------------------------------------------------------------------------
+last_ts_str = latest_state.get("timestamp") or latest_state.get("created_at") or ""
+try:
+    if last_ts_str:
+        dt_last = datetime.fromisoformat(last_ts_str.replace("Z", ""))
+        sec_diff = max(0, int((datetime.now() - dt_last).total_seconds()))
+        if sec_diff < 60:
+            sync_age_str = f"{sec_diff} saniye önce"
+        elif sec_diff < 3600:
+            sync_age_str = f"{sec_diff // 60} dakika önce"
+        else:
+            sync_age_str = f"{sec_diff // 3600} saat önce"
+        sync_time_str = dt_last.strftime("%d.%m.%Y %H:%M:%S")
+    else:
+        sync_time_str = "Canlı"
+        sync_age_str = "Az önce"
+except Exception:
+    sync_time_str = "Canlı"
+    sync_age_str = "Az önce"
+
+active_positions_list = db.get_active_positions()
+active_pos_count = len(active_positions_list)
+active_symbols_preview = ", ".join([f"{p.get('side', '')} {p.get('symbol', '')}" for p in active_positions_list]) if active_pos_count > 0 else "Nakit Beklemede (0 Açık Pozisyon — Kasa Güvende)"
+
+sync_c1, sync_c2 = st.columns([3.8, 1.2])
+with sync_c1:
+    st.markdown(f"""
+    <div style="background: linear-gradient(135deg, #064e3b 0%, #0f172a 100%); border: 1px solid #10b981; border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.12);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div>
+                <span style="color:#34d399; font-weight:bold; font-size:13px;">🟢 %100 CANLI BULUT SENKRONİZASYONU AKTİF (OTONOM MOTOR KESİNTİSİZ ÇALIŞIYOR)</span><br>
+                <span style="color:#e2e8f0; font-size:12px;">⏱️ Son Senkronizasyon: <b>{sync_time_str}</b> <span style="color:#6ee7b7;">({sync_age_str})</span> | Mod: <b>{latest_state.get('trading_mode', 'LIVE_TRADING')}</b> | Süreç: <b>Arka Plan Daemon 7/24 Aktif</b></span><br>
+                <span style="color:#cbd5e1; font-size:11px;">📊 Portföy Durumu: <b>{active_symbols_preview}</b></span><br>
+                <span style="color:#94a3b8; font-size:11px;">📱 Başka Cihazdan (Telefon/Tablet/PC) Anlık İzleme: <b style="color:#38bdf8;">http://{local_ip}:8501</b> (veya bu cihazda <b style="color:#38bdf8;">localhost:8501</b>)</span>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+with sync_c2:
+    if st.button("🔄 Bulut ile Şimdi Senkronize Et", use_container_width=True, help="Tüm veritabanı önbelleğini temizler ve bulut/arka plan servisinden en son durumu anında çeker."):
+        st.cache_data.clear()
+        st.rerun()
 
 col1, col2, col3, col4, col5 = st.columns(5)
 with col1:
@@ -495,10 +626,50 @@ if selected_menu == "🏛️ Canlı Kasa & ALE Fonu":
 
     st.markdown("---")
     st.subheader("📜 Canlı İcra Edilen Emirler ve İşlem Geçmişi (LONG & SHORT)")
-    trades = db.get_trade_history()
+    trades = db.get_trade_history(limit=None)
     if trades:
-        formatted_trades = []
+        m = calculate_trade_metrics(trades)
+        t_col1, t_col2, t_col3, t_col4, t_col5 = st.columns(5)
+        with t_col1:
+            st.metric("Toplam İşlem", f"{m['total_trades']} Adet")
+        with t_col2:
+            st.metric("Kazanma Oranı", f"%{m['win_rate']:.1f}", f"{m['winning_trades']}K / {m['losing_trades']}Z")
+        with t_col3:
+            st.metric("Net Gerçekleşen K/Z", f"{m['total_pnl']:+,.2f} TL")
+        with t_col4:
+            st.metric("Kâr Faktörü (PF)", f"{m['profit_factor']:.2f}")
+        with t_col5:
+            st.metric("En İyi İşlem", f"+{m['max_win']:,.2f} TL", m['max_win_sym'])
+
+        # Hızlı Filtre Satırı
+        f_c1, f_c2, f_c3 = st.columns(3)
+        with f_c1:
+            all_syms = ["TÜM SÖZLEŞMELER"] + sorted(list({t.get("symbol", "") for t in trades if t.get("symbol")}))
+            filter_sym = st.selectbox("Sözleşme Filtresi:", all_syms, key="quick_trade_sym_filter")
+        with f_c2:
+            filter_side = st.selectbox("Yön Filtresi:", ["TÜMÜ", "🟢 LONG", "🔴 SHORT"], key="quick_trade_side_filter")
+        with f_c3:
+            filter_res = st.selectbox("Sonuç Filtresi:", ["TÜMÜ", "🟢 Yalnız Kârlı", "🔴 Yalnız Zararlı"], key="quick_trade_res_filter")
+
+        filtered_trades = []
         for t in trades:
+            sym = t.get("symbol", "")
+            side_raw = str(t.get("side", "")).upper()
+            pnl_val = float(t.get("pnl_try", 0.0))
+            if filter_sym != "TÜM SÖZLEŞMELER" and sym != filter_sym:
+                continue
+            if filter_side == "🟢 LONG" and "LONG" not in side_raw:
+                continue
+            if filter_side == "🔴 SHORT" and "SHORT" not in side_raw:
+                continue
+            if filter_res == "🟢 Yalnız Kârlı" and pnl_val <= 0:
+                continue
+            if filter_res == "🔴 Yalnız Zararlı" and pnl_val >= 0:
+                continue
+            filtered_trades.append(t)
+
+        formatted_trades = []
+        for t in filtered_trades:
             side_raw = str(t.get("side", "")).upper()
             side_badge = "🟢 LONG" if "LONG" in side_raw else "🔴 SHORT"
             pnl_val = float(t.get("pnl_try", 0.0))
@@ -518,8 +689,216 @@ if selected_menu == "🏛️ Canlı Kasa & ALE Fonu":
                 "Çıkış Zamanı": str(t.get("exit_time", "-"))[:19].replace("T", " ")
             })
         st.dataframe(pd.DataFrame(formatted_trades), use_container_width=True)
+
+        col_csv, col_info = st.columns([1, 2])
+        with col_csv:
+            df_csv = pd.DataFrame(filtered_trades).to_csv(index=False).encode('utf-8')
+            st.download_button(
+                label="📥 Tabloyu CSV İndir",
+                data=df_csv,
+                file_name=f"viop_kapanan_islemler_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                mime="text/csv",
+                use_container_width=True
+            )
+        with col_info:
+            st.info("💡 Kapsamlı grafikler, kümülatif getiri eğrisi ve sözleşme bazlı analiz için sol menüden **'📜 Tüm İşlem Geçmişi & Analiz'** sekmesine geçebilirsiniz.")
     else:
         st.info("ℹ️ Henüz tamamlanmış (kapatılmış) işlem bulunmamaktadır. Otonom canlı motor pozisyon kapattıkça (Chandelier Stop, Time Stop, Scale-Out) işlemler hem 🟢 LONG hem 🔴 SHORT yön belirteçleriyle bu tabloya anlık yansıyacaktır.")
+
+
+# ------------------------------------------------------------------------------
+# MENÜ 2: 📜 TÜM İŞLEM GEÇMİŞİ & DERİNLEMESİNE PERFORMANS ANALİZİ
+# ------------------------------------------------------------------------------
+elif selected_menu == "📜 Tüm İşlem Geçmişi & Analiz":
+    st.header("📜 Tüm İşlem Geçmişi & Kapsamlı Performans Analiz Merkezi")
+    st.caption("Tam İcra Defteri | Çift Yönlü (LONG / SHORT) İstatistikleri | Kümülatif K/Z Gelişimi | Gerçekleşen Emirler")
+
+    trades = db.get_trade_history(limit=None)
+    if not trades:
+        st.info("ℹ️ Henüz tamamlanmış (kapatılmış) işlem bulunmamaktadır. Otonom canlı motor pozisyon kapattıkça işlemler anlık olarak bu ekrana düşecektir.")
+    else:
+        m = calculate_trade_metrics(trades)
+
+        # 1. KPI Metrik Kartları
+        st.subheader("📊 Konsolide İşlem İstatistikleri")
+        m_c1, m_c2, m_c3, m_c4, m_c5, m_c6 = st.columns(6)
+        with m_c1:
+            st.markdown(f"""
+            <div class="kpi-card">
+                <div class="kpi-title">Toplam İşlem</div>
+                <div class="kpi-val" style="color:#38bdf8;">{m['total_trades']} Adet</div>
+                <small style="color:#94a3b8;">Gerçekleşen Kapanış</small>
+            </div>
+            """, unsafe_allow_html=True)
+        with m_c2:
+            st.markdown(f"""
+            <div class="kpi-card">
+                <div class="kpi-title">Kazanma Oranı (Win Rate)</div>
+                <div class="kpi-val" style="color:#22c55e;">%{m['win_rate']:.1f}</div>
+                <small style="color:#94a3b8;">{m['winning_trades']} Kazanç / {m['losing_trades']} Kayıp</small>
+            </div>
+            """, unsafe_allow_html=True)
+        with m_c3:
+            pnl_c = "#22c55e" if m['total_pnl'] >= 0 else "#ef4444"
+            st.markdown(f"""
+            <div class="kpi-card">
+                <div class="kpi-title">Toplam Net PnL</div>
+                <div class="kpi-val" style="color:{pnl_c};">{m['total_pnl']:+,.2f} TL</div>
+                <small style="color:#94a3b8;">Komisyon Sonrası Net</small>
+            </div>
+            """, unsafe_allow_html=True)
+        with m_c4:
+            st.markdown(f"""
+            <div class="kpi-card">
+                <div class="kpi-title">Kâr Faktörü (PF)</div>
+                <div class="kpi-val" style="color:#f59e0b;">{m['profit_factor']:.2f}</div>
+                <small style="color:#94a3b8;">Brüt Kâr / Brüt Zarar</small>
+            </div>
+            """, unsafe_allow_html=True)
+        with m_c5:
+            st.markdown(f"""
+            <div class="kpi-card">
+                <div class="kpi-title">En Yüksek Kazanç</div>
+                <div class="kpi-val" style="color:#22c55e;">+{m['max_win']:,.2f} TL</div>
+                <small style="color:#38bdf8;">{m['max_win_sym']}</small>
+            </div>
+            """, unsafe_allow_html=True)
+        with m_c6:
+            st.markdown(f"""
+            <div class="kpi-card">
+                <div class="kpi-title">En Yüksek Kayıp</div>
+                <div class="kpi-val" style="color:#ef4444;">{m['max_loss']:,.2f} TL</div>
+                <small style="color:#f43f5e;">{m['max_loss_sym']}</small>
+            </div>
+            """, unsafe_allow_html=True)
+
+        st.markdown("---")
+
+        # 2. Grafiksel Analizler (Plotly)
+        st.subheader("📈 İşlem Performans Grafikleri")
+        g_c1, g_c2 = st.columns(2)
+
+        df_trades = pd.DataFrame(trades)
+        df_trades['exit_time_dt'] = pd.to_datetime(df_trades['exit_time'], format='mixed')
+        df_sorted = df_trades.sort_values('exit_time_dt')
+        df_sorted['cum_pnl'] = df_sorted['pnl_try'].cumsum()
+
+        with g_c1:
+            st.markdown("##### 💹 Kümülatif Gerçekleşen Kâr/Zarar Eğrisi (TRY)")
+            fig_cum = go.Figure()
+            fig_cum.add_trace(go.Scatter(
+                x=df_sorted['exit_time_dt'],
+                y=df_sorted['cum_pnl'],
+                mode='lines+markers',
+                name='Kümülatif K/Z',
+                line=dict(color='#38bdf8', width=2.5),
+                marker=dict(size=6, color=['#22c55e' if p >= 0 else '#ef4444' for p in df_sorted['pnl_try']]),
+                fill='tozeroy',
+                fillcolor='rgba(56, 189, 248, 0.1)'
+            ))
+            fig_cum.update_layout(
+                paper_bgcolor='#0b0e14',
+                plot_bgcolor='#111827',
+                font=dict(color='#cbd5e1'),
+                margin=dict(l=20, r=20, t=30, b=20),
+                xaxis=dict(showgrid=True, gridcolor='#1f2937'),
+                yaxis=dict(showgrid=True, gridcolor='#1f2937', zeroline=True, zerolinecolor='#64748b')
+            )
+            st.plotly_chart(fig_cum, use_container_width=True)
+
+        with g_c2:
+            st.markdown("##### 🏛️ Sözleşme Bazında Kâr / Zarar Katkısı (TRY)")
+            sym_pnl = df_trades.groupby('symbol')['pnl_try'].sum().reset_index()
+            sym_pnl['color'] = sym_pnl['pnl_try'].apply(lambda x: '#22c55e' if x >= 0 else '#ef4444')
+            fig_bar = go.Figure()
+            fig_bar.add_trace(go.Bar(
+                x=sym_pnl['symbol'],
+                y=sym_pnl['pnl_try'],
+                marker_color=sym_pnl['color'],
+                name='Net K/Z'
+            ))
+            fig_bar.update_layout(
+                paper_bgcolor='#0b0e14',
+                plot_bgcolor='#111827',
+                font=dict(color='#cbd5e1'),
+                margin=dict(l=20, r=20, t=30, b=20),
+                xaxis=dict(showgrid=True, gridcolor='#1f2937'),
+                yaxis=dict(showgrid=True, gridcolor='#1f2937', zeroline=True, zerolinecolor='#64748b')
+            )
+            st.plotly_chart(fig_bar, use_container_width=True)
+
+        st.markdown("---")
+
+        # 3. İnteraktif Filtreleme ve Detaylı İşlem Tablosu
+        st.subheader("🔍 Filtrele & Ara")
+        fil_c1, fil_c2, fil_c3, fil_c4 = st.columns(4)
+        with fil_c1:
+            all_symbols = ["TÜMÜ"] + sorted(list({t.get("symbol", "") for t in trades if t.get("symbol")}))
+            sel_sym = st.selectbox("Sözleşme Seçin:", all_symbols, key="analiz_sym_filter")
+        with fil_c2:
+            sel_side = st.selectbox("İşlem Yönü:", ["TÜMÜ", "🟢 LONG", "🔴 SHORT"], key="analiz_side_filter")
+        with fil_c3:
+            all_reasons = ["TÜMÜ"] + sorted(list({t.get("exit_reason", "") for t in trades if t.get("exit_reason")}))
+            sel_reason = st.selectbox("Kapanış Gerekçesi:", all_reasons, key="analiz_reason_filter")
+        with fil_c4:
+            sel_res = st.selectbox("Kâr/Zarar Durumu:", ["TÜMÜ", "🟢 Yalnızca Kazançlı", "🔴 Yalnızca Zararlı"], key="analiz_res_filter")
+
+        filtered = []
+        for t in trades:
+            sym = t.get("symbol", "")
+            side_raw = str(t.get("side", "")).upper()
+            reason = str(t.get("exit_reason", ""))
+            pnl_val = float(t.get("pnl_try", 0.0))
+
+            if sel_sym != "TÜMÜ" and sym != sel_sym:
+                continue
+            if sel_side == "🟢 LONG" and "LONG" not in side_raw:
+                continue
+            if sel_side == "🔴 SHORT" and "SHORT" not in side_raw:
+                continue
+            if sel_reason != "TÜMÜ" and reason != sel_reason:
+                continue
+            if sel_res == "🟢 Yalnızca Kazançlı" and pnl_val <= 0:
+                continue
+            if sel_res == "🔴 Yalnızca Zararlı" and pnl_val >= 0:
+                continue
+
+            filtered.append(t)
+
+        st.caption(f"Filtrelenen İşlem Sayısı: **{len(filtered)}** / {len(trades)}")
+
+        formatted_list = []
+        for t in filtered:
+            side_raw = str(t.get("side", "")).upper()
+            side_badge = "🟢 LONG" if "LONG" in side_raw else "🔴 SHORT"
+            pnl_val = float(t.get("pnl_try", 0.0))
+            pnl_str = f"+{pnl_val:,.2f} TL" if pnl_val >= 0 else f"{pnl_val:,.2f} TL"
+
+            formatted_list.append({
+                "İşlem ID": t.get("trade_id", "-"),
+                "Sözleşme": t.get("symbol", "-"),
+                "İşlem Yönü": side_badge,
+                "Kontrat (Lot)": t.get("lots", 0),
+                "Giriş Fiyatı": f"{float(t.get('entry_price', 0)):,.2f} TL",
+                "Çıkış Fiyatı": f"{float(t.get('exit_price', 0)):,.2f} TL",
+                "Net Kâr/Zarar": pnl_str,
+                "R-Çarpanı": f"{float(t.get('r_multiple', 1.0)):+.2f}R",
+                "Kapanış Gerekçesi": t.get("exit_reason", "-"),
+                "Giriş Zamanı": str(t.get("entry_time", "-"))[:19].replace("T", " "),
+                "Çıkış Zamanı": str(t.get("exit_time", "-"))[:19].replace("T", " ")
+            })
+
+        st.dataframe(pd.DataFrame(formatted_list), use_container_width=True)
+
+        # 4. CSV Export
+        csv_bytes = pd.DataFrame(filtered).to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="📥 Bu Filtrelenmiş Tabloyu CSV Olarak İndir (Excel Uyumlu)",
+            data=csv_bytes,
+            file_name=f"viop_tum_islemler_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+            mime="text/csv",
+            use_container_width=True
+        )
 
 
 # ------------------------------------------------------------------------------

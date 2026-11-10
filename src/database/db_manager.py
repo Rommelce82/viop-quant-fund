@@ -282,11 +282,14 @@ class DatabaseManager:
                 df = df.iloc[::-1].reset_index(drop=True)
             return df
 
-    def get_trade_history(self, limit: int = 50) -> List[Dict[str, Any]]:
-        """Geçmiş işlemleri döner."""
+    def get_trade_history(self, limit: Optional[int] = None) -> List[Dict[str, Any]]:
+        """Geçmiş işlemleri döner. limit=None ise tüm geçmişi eksiksiz döner."""
         with self._get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM trade_history ORDER BY exit_time DESC LIMIT {limit}")
+            query = "SELECT * FROM trade_history ORDER BY exit_time DESC"
+            if limit is not None and limit > 0:
+                query += f" LIMIT {int(limit)}"
+            cursor.execute(query)
             rows = cursor.fetchall()
             return [dict(r) for r in rows]
 
