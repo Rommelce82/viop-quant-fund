@@ -281,15 +281,24 @@ with st.sidebar:
     )
     st.session_state["current_active_nav_tab"] = selected_menu
 
-    # Canlı Otomatik Yenileme (Sıfır Kullanıcı Müdahalesi)
+    # Canlı Otomatik Yenileme (Kullanıcı Talebi: Her 3 Dakikada Bir Otomatik Senkron)
     st.markdown("---")
-    auto_refresh_enabled = st.checkbox(
-        "🔄 Canlı Otomatik Yenileme (15 sn)",
-        value=True,
-        help="Açıkken ekran her 15 saniyede bir otomatik yenilenir. Kullanıcı hiçbir tuşa basmak zorunda kalmaz."
+    st.subheader("⏱️ Otomatik Yenileme")
+    refresh_option = st.selectbox(
+        "Yenileme Aralığı:",
+        ["3 Dakika (Önerilen)", "1 Dakika", "30 Saniye", "Manuel (Kapalı)"],
+        index=0,
+        help="Dashboard'un arka plan bulut sistemiyle kendini senkronize etme sıklığı."
     )
-    if auto_refresh_enabled:
-        st_autorefresh(interval=15000, key="viop_cockpit_autorefresh")
+    refresh_map = {
+        "3 Dakika (Önerilen)": 180000,
+        "1 Dakika": 60000,
+        "30 Saniye": 30000,
+        "Manuel (Kapalı)": 0
+    }
+    refresh_ms = refresh_map.get(refresh_option, 180000)
+    if refresh_ms > 0:
+        st_autorefresh(interval=refresh_ms, key="viop_cockpit_3min_autorefresh")
 
     st.markdown("---")
     st.subheader("🤖 Otonom Canlı Pilot (v4.2)")
@@ -399,12 +408,24 @@ with sync_c1:
             <div>
                 <span style="color:#34d399; font-weight:bold; font-size:13px;">🟢 %100 CANLI BULUT SENKRONİZASYONU AKTİF (OTONOM MOTOR KESİNTİSİZ ÇALIŞIYOR)</span><br>
                 <span style="color:#e2e8f0; font-size:12px;">⏱️ Son Senkronizasyon: <b>{sync_time_str}</b> <span style="color:#6ee7b7;">({sync_age_str})</span> | Mod: <b>{latest_state.get('trading_mode', 'LIVE_TRADING')}</b> | Süreç: <b>Arka Plan Daemon 7/24 Aktif</b></span><br>
+                <span style="color:#38bdf8; font-size:11px;">🔄 Otomatik Yenileme: <b>Her 3 Dakikada Bir Aktif (180 sn)</b> — Bulut ve veritabanı ile tam otomatik senkronize</span><br>
                 <span style="color:#cbd5e1; font-size:11px;">📊 Portföy Durumu: <b>{active_symbols_preview}</b></span><br>
                 <span style="color:#94a3b8; font-size:11px;">📱 Başka Cihazdan (Telefon/Tablet/PC) Anlık İzleme: <b style="color:#38bdf8;">http://{local_ip}:8501</b> (veya bu cihazda <b style="color:#38bdf8;">localhost:8501</b>)</span>
             </div>
         </div>
     </div>
     """, unsafe_allow_html=True)
+
+# 3-Dakika Kesintisiz Yenileme Kalkanı (Tarayıcı Arka Planda Kalsa Dahi Çalışır)
+if refresh_ms > 0:
+    st.components.v1.html(f"""
+    <script>
+    if (window.viop_sync_timer) clearTimeout(window.viop_sync_timer);
+    window.viop_sync_timer = setTimeout(function() {{
+        window.parent.location.reload();
+    }}, {refresh_ms});
+    </script>
+    """, height=0, width=0)
 with sync_c2:
     if st.button("🔄 Bulut ile Şimdi Senkronize Et", use_container_width=True, help="Tüm veritabanı önbelleğini temizler ve bulut/arka plan servisinden en son durumu anında çeker."):
         st.cache_data.clear()
@@ -533,6 +554,7 @@ if selected_menu == "🏛️ Canlı Kasa & ALE Fonu":
             margin_info = latest_margins.get(sym, {})
             unit_margin = margin_info.get("initial_margin_try") or (spec.initial_margin_try if spec else 7000.0)
 
+            flat_entry = round(abs(p["lots"]) * p["entry_price"], 2)
             notional = round(abs(p["lots"]) * multi * p["current_price"], 2)
             margin = round(abs(p["lots"]) * unit_margin, 2)
             lev = round(notional / margin, 1) if margin > 0 else 1.0
@@ -541,13 +563,14 @@ if selected_menu == "🏛️ Canlı Kasa & ALE Fonu":
                 "Sembol": sym,
                 "İşlem Yönü": side_badge,
                 "Kontrat (Lot)": abs(p["lots"]),
-                "Pozisyon Tutarı (TL)": f"{notional:,.2f} TL",
+                "Giriş Fiyatı": f"{p['entry_price']:,.2f} TL",
+                "Güncel Fiyat": f"{p['current_price']:,.2f} TL",
+                "Yatırılan Tutar (Lot x Fiyat)": f"{flat_entry:,.2f} TL",
+                "Toplam Pozisyon Tutarı (Nominal)": f"{notional:,.2f} TL",
                 "Bağlanan Teminat": f"{margin:,.2f} TL",
                 "Efektif Kaldıraç": f"{lev:.1f}x",
-                "Giriş Fiyatı": f"{p['entry_price']:.2f}",
-                "Güncel Fiyat": f"{p['current_price']:.2f}",
                 "Anlık PnL": f"{p['pnl_try']:+,.2f} TL",
-                "İz Süren Stop": f"{p['trailing_stop']:.2f}",
+                "İz Süren Stop": f"{p['trailing_stop']:,.2f} TL",
                 "Barda Geçen Süre": f"{p['bars_held']} Bar"
             })
         st.dataframe(pd.DataFrame(formatted_pos), use_container_width=True)
@@ -555,20 +578,16 @@ if selected_menu == "🏛️ Canlı Kasa & ALE Fonu":
         st.info("🛡️ Şu anda açık VİOP pozisyonu bulunmamaktadır. 2.000.000 TL serbest nakdin %100'ü Akbank ALE fonunda gecelik net %39.60 faizle değerlendirilmektedir.")
 
     st.markdown("---")
-    st.subheader("🎯 Seans Öncesi Planlama & İki Yönlü Tetik Radarı (LONG & SHORT)")
-    st.markdown("""
-    > **Çift Yönlü Algoritmik Ticaret & Açılış Koruma Kalkanı (Ali Perşembe Doktrini)**
-    > * **%100 Çift Yönlü Özgürlük (LONG & SHORT):** Sistem tüm Pay, Endeks ve Emtia sözleşmelerinde hem yükseliş kırılımlarını (LONG) hem de düşüş çöküşlerini (SHORT) eşzamanlı olarak tarar ve icra eder.
-    > * **Neden Seans Açılmadan Önce Pasif Emir Girilmez?** Borsa İstanbul VİOP seansı saat 09:30'da başlar. Seans açılmadan tahtaya körleme emir girmek, sabah eşleşmesinde ve olası ters haber gaplerinde sermayeyi riske atar.
-    > * **09:30 - 10:15 Açılış Çalkantısı Kalkanı (`REJECT_TIME_OPENING`):** Açılışın ilk 45 dakikasındaki yapay spekülatif tuzaklar ve açılış eşleşme gürültüsü sönümlenene kadar sistem koruma modundadır.
-    > * **Canlı Tetik Mekanizması:** Saat 10:15 sonrasında, canlı fiyatlar aşağıdaki direnç seviyesini aşarsa **LONG**, destek seviyesini kırarsa **SHORT** emirleri anında üretilir.
-    """)
+    st.subheader("🔥 VİOP Çift Yönlü Sinyal Isı Haritası & Tetik Radarı (Heatmap Matrix)")
+    st.caption("240m Seans Barları & Donchian Kanalları | Tetik Mesafesine Göre Renklendirilmiş Isı Haritası | Kırılıma En Yakın Sözleşmeler En Üstte")
 
     if live_market_state and "contracts" in live_market_state:
-        radar_rows = []
+        heat_contracts = []
         for sym, c_info in live_market_state["contracts"].items():
             cat = c_info.get("type", "EQUITY")
             lp = float(c_info.get("last_price", 0.0))
+            if lp <= 0:
+                continue
             bar240 = c_info.get("last_240m_bar", {})
             h = float(bar240.get("high", lp))
             l = float(bar240.get("low", lp))
@@ -587,34 +606,155 @@ if selected_menu == "🏛️ Canlı Kasa & ALE Fonu":
                 status = "🛡️ Nakit ALE Repo Fonunda (%48 Brüt - Çıplak Kırılım Kapalı)"
                 long_trigger = "-"
                 short_trigger = "-"
+                dist_long = 99.0
+                dist_short = 99.0
+                min_dist = 99.0
+                heat_score = 10
+                bias = "REPO"
+                heat_badge = "🛡️ REPO / NÖTR"
             else:
-                direction_badge = "🔄 ÇİFT YÖNLÜ (LONG / SHORT)"
-                long_trigger = f">{h:,.2f} TL (Donchian / 240m Tepe)"
-                short_trigger = f"<{l:,.2f} TL (Donchian / 240m Dip)"
+                dist_long = max(0.0, ((h - lp) / lp) * 100.0) if h >= lp else 0.0
+                dist_short = max(0.0, ((lp - l) / lp) * 100.0) if lp >= l else 0.0
+                min_dist = min(dist_long, dist_short)
+                heat_score = max(10, min(100, int(100 - (min_dist * 25))))
+                bias = "LONG" if dist_long < dist_short else "SHORT"
+
+                direction_badge = "🟢 LONG RADARI" if bias == "LONG" else "🔴 SHORT RADARI"
+                long_trigger = f">{h:,.2f} TL"
+                short_trigger = f"<{l:,.2f} TL"
+
+                if min_dist <= 0.5:
+                    heat_badge = f"🔥 AŞIRI SICAK / TETİKTE (< %0.5)"
+                elif min_dist <= 1.5:
+                    heat_badge = f"⚡ YÜKSEK İHTİMAL (%0.5 - %1.5)"
+                elif min_dist <= 3.0:
+                    heat_badge = f"🌤️ ORTA İHTİMAL (%1.5 - %3.0)"
+                else:
+                    heat_badge = f"❄️ SAKİN / KANAL İÇİ (> %3.0)"
 
                 if u_pct >= 40.0 and l_pct >= 40.0:
-                    status = f"⚠️ Kararsız Doji (Üst %{u_pct:.0f} / Alt %{l_pct:.0f}) -> Kırılım Teyidi Bekleniyor"
+                    status = f"⚠️ Doji (Üst %{u_pct:.0f} / Alt %{l_pct:.0f}) -> Teyit Bekleniyor"
                 elif u_pct >= 40.0:
-                    status = f"⚠️ Satıcı Baskısı (Üst Fitil %{u_pct:.0f} > %40) -> Long için {h:,.2f} TL aşılmalı, Short tetiklenebilir"
+                    status = f"⚠️ Satıcı Baskısı (Üst Fitil %{u_pct:.0f}) -> Short yakın, Long için {h:,.2f} TL geçilmeli"
                 elif l_pct >= 50.0:
-                    status = f"⚠️ Alıcı Tepkisi (Alt Fitil %{l_pct:.0f} > %50) -> Short için {l:,.2f} TL kırılmalı, Long tetiklenebilir"
+                    status = f"⚠️ Alıcı Tepkisi (Alt Fitil %{l_pct:.0f}) -> Long yakın, Short için {l:,.2f} TL kırılmalı"
                 else:
-                    status = f"🎯 Çift Yönlü İcra: >{h:,.2f} TL LONG | <{l:,.2f} TL SHORT"
+                    status = f"🎯 Tetik: >{h:,.2f} TL LONG | <{l:,.2f} TL SHORT"
 
-            radar_rows.append({
-                "Sözleşme": sym,
-                "Sınıf": cat,
-                "Dün Kapanış": f"{lp:,.2f} TL",
-                "İzinli İşlem Yönü": direction_badge,
-                "Long Tetik Seviyesi (Direnç)": long_trigger,
-                "Short Tetik Seviyesi (Destek)": short_trigger,
-                "Üst Fitil (Satıcı Baskısı)": f"%{u_pct:.1f}",
-                "Alt Fitil (Alıcı Tepkisi)": f"%{l_pct:.1f}",
-                "Seans Planı & Savunma Durumu": status
+            heat_contracts.append({
+                "symbol": sym,
+                "category": cat,
+                "price": lp,
+                "high": h,
+                "low": l,
+                "dist_long": dist_long,
+                "dist_short": dist_short,
+                "min_dist": min_dist,
+                "heat_score": heat_score,
+                "bias": bias,
+                "color_val": heat_score if bias == "LONG" else (-heat_score if bias == "SHORT" else 0),
+                "heat_badge": heat_badge,
+                "direction_badge": direction_badge,
+                "long_trigger": long_trigger,
+                "short_trigger": short_trigger,
+                "u_pct": u_pct,
+                "l_pct": l_pct,
+                "status": status
             })
 
-        df_radar = pd.DataFrame(radar_rows)
-        st.dataframe(df_radar, use_container_width=True, height=320)
+        # Kırılıma en yakın sözleşmeleri en üste sırala
+        heat_contracts.sort(key=lambda x: x["min_dist"])
+
+        # 1. Isı Haritası Özet KPI Kartları
+        hot_count = len([c for c in heat_contracts if c["min_dist"] <= 1.5 and c["bias"] != "REPO"])
+        long_hot = len([c for c in heat_contracts if c["bias"] == "LONG" and c["min_dist"] <= 2.0])
+        short_hot = len([c for c in heat_contracts if c["bias"] == "SHORT" and c["min_dist"] <= 2.0])
+        calm_count = len([c for c in heat_contracts if c["min_dist"] > 2.0])
+
+        h_kpi1, h_kpi2, h_kpi3, h_kpi4 = st.columns(4)
+        with h_kpi1:
+            st.metric("🔥 Tetikteki Sıcak Sözleşmeler", f"{hot_count} Adet", "Mesafe < %1.5")
+        with h_kpi2:
+            st.metric("🟢 Long Direncine Yakın", f"{long_hot} Adet", "Yukarı Kırılım")
+        with h_kpi3:
+            st.metric("🔴 Short Desteğine Yakın", f"{short_hot} Adet", "Aşağı Çöküş")
+        with h_kpi4:
+            st.metric("❄️ Sakin / Kanal İçi", f"{calm_count} Adet", "Mesafe > %2.0")
+
+        # 2. Plotly Treemap Isı Haritası Görseli
+        df_heat = pd.DataFrame(heat_contracts)
+        df_heat_display = df_heat[df_heat["category"] != "FX"].copy()
+        if not df_heat_display.empty:
+            df_heat_display["hover_text"] = df_heat_display.apply(
+                lambda r: f"<b>{r['symbol']}</b> ({r['category']})<br>Fiyat: {r['price']:,.2f} TL<br>Isı Skoru: {r['heat_score']}°<br>Long'a Kalan: %{r['dist_long']:.2f}<br>Short'a Kalan: %{r['dist_short']:.2f}<br>Durum: {r['heat_badge']}",
+                axis=1
+            )
+            fig_treemap = px.treemap(
+                df_heat_display,
+                path=["category", "symbol"],
+                values="heat_score",
+                color="color_val",
+                color_continuous_scale=[
+                    (0.0, "#dc2626"),   # Koyu Kırmızı (Short Kırılımı)
+                    (0.4, "#f87171"),   # Açık Kırmızı
+                    (0.5, "#334155"),   # Nötr Çelik Grisi
+                    (0.6, "#34d399"),   # Açık Yeşil
+                    (1.0, "#059669")    # Koyu Yeşil (Long Kırılımı)
+                ],
+                color_continuous_midpoint=0,
+                hover_data={"hover_text": True, "category": False, "symbol": False, "heat_score": False, "color_val": False}
+            )
+            fig_treemap.update_traces(
+                textinfo="label+value",
+                hovertemplate="%{customdata[0]}<extra></extra>"
+            )
+            fig_treemap.update_layout(
+                paper_bgcolor="#0b0e14",
+                plot_bgcolor="#111827",
+                margin=dict(l=10, r=10, t=10, b=10),
+                coloraxis_showscale=False,
+                height=320
+            )
+            st.plotly_chart(fig_treemap, use_container_width=True)
+
+        # 3. Renklendirilmiş Isı Haritası Tablosu ve Filtreler
+        st.markdown("##### 📋 Isı Haritası Sıralı Takip Listesi (Sıcaklık ve Kırılım Yakınlığı)")
+        tab_choice = st.radio(
+            "Filtrele:",
+            ["🔥 Tüm Sözleşmeler (En Sıcaklar En Üstte)", "⚡ Tetikteki Sıcaklar (< %1.5)", "🟢 Yalnızca Long Radarı", "🔴 Yalnızca Short Radarı"],
+            horizontal=True,
+            key="heatmap_filter_tab"
+        )
+
+        filtered_heat = []
+        for r in heat_contracts:
+            if tab_choice == "⚡ Tetikteki Sıcaklar (< %1.5)" and r["min_dist"] > 1.5:
+                continue
+            if tab_choice == "🟢 Yalnızca Long Radarı" and r["bias"] != "LONG":
+                continue
+            if tab_choice == "🔴 Yalnızca Short Radarı" and r["bias"] != "SHORT":
+                continue
+            filtered_heat.append(r)
+
+        heat_table_rows = []
+        for r in filtered_heat:
+            fill_bar = int(r["heat_score"] / 10)
+            bar_visual = f"{'█' * fill_bar}{'░' * (10 - fill_bar)} {r['heat_score']}°"
+            heat_table_rows.append({
+                "Sözleşme": r["symbol"],
+                "Sınıf": r["category"],
+                "Güncel Fiyat": f"{r['price']:,.2f} TL",
+                "Sinyal Sıcaklığı (0-100°)": bar_visual,
+                "Tetik Durumu": r["heat_badge"],
+                "İşlem Yönü": r["direction_badge"],
+                "Long Tetik (Direnç)": r["long_trigger"],
+                "Long'a Mesafe": f"%{r['dist_long']:.2f}" if r["dist_long"] < 90 else "-",
+                "Short Tetik (Destek)": r["short_trigger"],
+                "Short'a Mesafe": f"%{r['dist_short']:.2f}" if r["dist_short"] < 90 else "-",
+                "Seans Eylem Planı": r["status"]
+            })
+
+        st.dataframe(pd.DataFrame(heat_table_rows), use_container_width=True, height=360)
 
     st.markdown("---")
     st.subheader("📈 2.000.000 TL Canlı Portföy Sermaye Eğrisi (Equity Curve)")
@@ -670,18 +810,29 @@ if selected_menu == "🏛️ Canlı Kasa & ALE Fonu":
 
         formatted_trades = []
         for t in filtered_trades:
+            sym = t.get("symbol", "-")
             side_raw = str(t.get("side", "")).upper()
             side_badge = "🟢 LONG" if "LONG" in side_raw else "🔴 SHORT"
             pnl_val = float(t.get("pnl_try", 0.0))
             pnl_str = f"+{pnl_val:,.2f} TL" if pnl_val >= 0 else f"{pnl_val:,.2f} TL"
 
+            spec = config.contracts.get(sym)
+            multi = spec.multiplier if spec else (100.0 if any(k in sym for k in ["THYAO", "AKBNK", "GARAN", "SAHOL", "FROTO", "TCELL", "GESAN", "BRSAN", "ISCTR", "YKBNK", "EREGL", "KCHOL", "TUPRS"]) else 10.0)
+            lots = int(t.get("lots", 0))
+            entry_p = float(t.get("entry_price", 0.0))
+            exit_p = float(t.get("exit_price", 0.0))
+            flat_invested = round(lots * entry_p, 2)
+            notional_total = round(lots * entry_p * multi, 2)
+
             formatted_trades.append({
                 "İşlem ID": t.get("trade_id", "-"),
-                "Sözleşme": t.get("symbol", "-"),
+                "Sözleşme": sym,
                 "İşlem Yönü": side_badge,
-                "Kontrat (Lot)": t.get("lots", 0),
-                "Giriş Fiyatı": f"{float(t.get('entry_price', 0)):,.2f} TL",
-                "Çıkış Fiyatı": f"{float(t.get('exit_price', 0)):,.2f} TL",
+                "Kontrat (Lot)": lots,
+                "Giriş Fiyatı": f"{entry_p:,.2f} TL",
+                "Çıkış Fiyatı": f"{exit_p:,.2f} TL",
+                "Yatırılan Tutar (Lot x Fiyat)": f"{flat_invested:,.2f} TL",
+                "Toplam Pozisyon Tutarı (Nominal)": f"{notional_total:,.2f} TL",
                 "Net Kâr/Zarar": pnl_str,
                 "R-Çarpanı": f"{float(t.get('r_multiple', 1.0)):+.2f}R",
                 "Kapanış Gerekçesi": t.get("exit_reason", "-"),
@@ -869,18 +1020,29 @@ elif selected_menu == "📜 Tüm İşlem Geçmişi & Analiz":
 
         formatted_list = []
         for t in filtered:
+            sym = t.get("symbol", "-")
             side_raw = str(t.get("side", "")).upper()
             side_badge = "🟢 LONG" if "LONG" in side_raw else "🔴 SHORT"
             pnl_val = float(t.get("pnl_try", 0.0))
             pnl_str = f"+{pnl_val:,.2f} TL" if pnl_val >= 0 else f"{pnl_val:,.2f} TL"
 
+            spec = config.contracts.get(sym)
+            multi = spec.multiplier if spec else (100.0 if any(k in sym for k in ["THYAO", "AKBNK", "GARAN", "SAHOL", "FROTO", "TCELL", "GESAN", "BRSAN", "ISCTR", "YKBNK", "EREGL", "KCHOL", "TUPRS"]) else 10.0)
+            lots = int(t.get("lots", 0))
+            entry_p = float(t.get("entry_price", 0.0))
+            exit_p = float(t.get("exit_price", 0.0))
+            flat_invested = round(lots * entry_p, 2)
+            notional_total = round(lots * entry_p * multi, 2)
+
             formatted_list.append({
                 "İşlem ID": t.get("trade_id", "-"),
-                "Sözleşme": t.get("symbol", "-"),
+                "Sözleşme": sym,
                 "İşlem Yönü": side_badge,
-                "Kontrat (Lot)": t.get("lots", 0),
-                "Giriş Fiyatı": f"{float(t.get('entry_price', 0)):,.2f} TL",
-                "Çıkış Fiyatı": f"{float(t.get('exit_price', 0)):,.2f} TL",
+                "Kontrat (Lot)": lots,
+                "Giriş Fiyatı": f"{entry_p:,.2f} TL",
+                "Çıkış Fiyatı": f"{exit_p:,.2f} TL",
+                "Yatırılan Tutar (Lot x Fiyat)": f"{flat_invested:,.2f} TL",
+                "Toplam Pozisyon Büyüklüğü (Nominal)": f"{notional_total:,.2f} TL",
                 "Net Kâr/Zarar": pnl_str,
                 "R-Çarpanı": f"{float(t.get('r_multiple', 1.0)):+.2f}R",
                 "Kapanış Gerekçesi": t.get("exit_reason", "-"),

@@ -95,6 +95,21 @@ def acquire_operator_lock(port: int = 58999) -> Optional[socket.socket]:
         return None
 
 
+def is_viop_market_open(dt: Optional[datetime] = None) -> bool:
+    """
+    VİOP normal seansının açık olup olmadığını denetler (Hafta içi 09:30 - 18:15).
+    Borsa İstanbul VİOP seansı kapalıyken (gece saat 18:15 - 09:30 arası veya hafta sonları)
+    kesinlikle yeni pozisyona girilemez ve mevcut pozisyonlar kapatılamaz.
+    """
+    now = dt or datetime.now()
+    # Hafta sonu kapalı (5=Cumartesi, 6=Pazar)
+    if now.weekday() >= 5:
+        return False
+    # Normal sürekli müzayede seansı (09:30 - 18:15)
+    t = now.time()
+    return time(9, 30) <= t <= time(18, 15)
+
+
 class AutonomousLiveOperator:
     """
     Sıfır Müdahaleli VİOP Otonom Canlı Operatörü.
@@ -488,9 +503,13 @@ class AutonomousLiveOperator:
                     ExecutionActionV4.FRIDAY_CLOSE_EXIT
                 )
 
-                # Güncel portföy değerine göre anlık devre kesici kontrolü
+                # Seans saatleri ve devre kesici kontrolü
+                market_open = is_viop_market_open(now)
                 cb_active, cb_reason = self.risk_manager.check_circuit_breaker()
-                if cb_active and is_entry:
+                if not market_open:
+                    if is_entry or is_exit:
+                        logger.info("🌙 [PİYASA KAPALI] %s için %s aksiyonu seans dışı (09:30-18:15 dışı) nedeniyle bekletildi.", sym, action.value)
+                elif cb_active and is_entry:
                     logger.warning("🚨 [DEVRE KESİCİ AKTİF] %s giriş emri engellendi: %s", sym, cb_reason)
                 elif is_entry or is_exit:
                     order_details = {
