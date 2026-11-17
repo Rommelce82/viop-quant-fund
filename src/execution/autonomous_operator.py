@@ -90,6 +90,7 @@ def acquire_operator_lock(port: int = 58999) -> Optional[socket.socket]:
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind(("127.0.0.1", port))
+        s.listen(1)
         return s
     except OSError:
         return None
@@ -363,36 +364,51 @@ class AutonomousLiveOperator:
 
     async def fetch_contract_data(self, ticker: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         """Yahoo Finance üzerinden 60 günlük 1h verilerini çeker, 120m ve 240m barlara resample eder."""
-        raw_1h = yf.download(ticker, period="60d", interval="1h", progress=False)
-        if isinstance(raw_1h.columns, pd.MultiIndex):
-            raw_1h.columns = raw_1h.columns.get_level_values(0)
-        raw_1h = raw_1h.reset_index()
-        t_col = "Datetime" if "Datetime" in raw_1h.columns else "Date"
-
-        df_1h = pd.DataFrame({
-            "timestamp": pd.to_datetime(raw_1h[t_col]).dt.tz_localize(None),
-            "open": raw_1h["Open"].astype(float),
-            "high": raw_1h["High"].astype(float),
-            "low": raw_1h["Low"].astype(float),
-            "close": raw_1h["Close"].astype(float),
-            "volume": raw_1h["Volume"].astype(float) if "Volume" in raw_1h.columns else 0.0
-        }).dropna().sort_values("timestamp").reset_index(drop=True)
+        df_1h = pd.DataFrame()
+        try:
+            raw_1h = yf.download(ticker, period="60d", interval="1h", progress=False)
+            if raw_1h is not None and not raw_1h.empty:
+                if isinstance(raw_1h.columns, pd.MultiIndex):
+                    raw_1h.columns = raw_1h.columns.get_level_values(0)
+                raw_1h = raw_1h.reset_index()
+                t_col = "Datetime" if "Datetime" in raw_1h.columns else "Date"
+                if t_col in raw_1h.columns:
+                    df_1h = pd.DataFrame({
+                        "timestamp": pd.to_datetime(raw_1h[t_col]).dt.tz_localize(None),
+                        "open": raw_1h["Open"].astype(float),
+                        "high": raw_1h["High"].astype(float),
+                        "low": raw_1h["Low"].astype(float),
+                        "close": raw_1h["Close"].astype(float),
+                        "volume": raw_1h["Volume"].astype(float) if "Volume" in raw_1h.columns else 0.0
+                    }).dropna().sort_values("timestamp").reset_index(drop=True)
+        except Exception as e:
+            logger.warning(f"Error fetching 1h data for {ticker}: {e}")
+            df_1h = pd.DataFrame()
 
         if df_1h.empty:
             # Fallback 5d 15m
-            raw_15m = yf.download(ticker, period="5d", interval="15m", progress=False)
-            if isinstance(raw_15m.columns, pd.MultiIndex):
-                raw_15m.columns = raw_15m.columns.get_level_values(0)
-            raw_15m = raw_15m.reset_index()
-            t_col_15 = "Datetime" if "Datetime" in raw_15m.columns else "Date"
-            df_1h = pd.DataFrame({
-                "timestamp": pd.to_datetime(raw_15m[t_col_15]).dt.tz_localize(None),
-                "open": raw_15m["Open"].astype(float),
-                "high": raw_15m["High"].astype(float),
-                "low": raw_15m["Low"].astype(float),
-                "close": raw_15m["Close"].astype(float),
-                "volume": raw_15m["Volume"].astype(float) if "Volume" in raw_15m.columns else 0.0
-            }).dropna().sort_values("timestamp").reset_index(drop=True)
+            try:
+                raw_15m = yf.download(ticker, period="5d", interval="15m", progress=False)
+                if raw_15m is not None and not raw_15m.empty:
+                    if isinstance(raw_15m.columns, pd.MultiIndex):
+                        raw_15m.columns = raw_15m.columns.get_level_values(0)
+                    raw_15m = raw_15m.reset_index()
+                    t_col_15 = "Datetime" if "Datetime" in raw_15m.columns else "Date"
+                    if t_col_15 in raw_15m.columns:
+                        df_1h = pd.DataFrame({
+                            "timestamp": pd.to_datetime(raw_15m[t_col_15]).dt.tz_localize(None),
+                            "open": raw_15m["Open"].astype(float),
+                            "high": raw_15m["High"].astype(float),
+                            "low": raw_15m["Low"].astype(float),
+                            "close": raw_15m["Close"].astype(float),
+                            "volume": raw_15m["Volume"].astype(float) if "Volume" in raw_15m.columns else 0.0
+                        }).dropna().sort_values("timestamp").reset_index(drop=True)
+            except Exception as e:
+                logger.warning(f"Error fetching 15m data for {ticker}: {e}")
+                df_1h = pd.DataFrame()
+
+        if df_1h.empty:
+            return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
 
         df_120m = self.resample_ohlcv(df_1h, 120)
         df_240m = self.resample_ohlcv(df_1h, 240)
@@ -455,10 +471,14 @@ class AutonomousLiveOperator:
 
                 # Günlük geçmiş veri (Teknik indikatörler için)
                 raw_d = yf.download(ticker, period="60d", interval="1d", progress=False)
+                if raw_d.empty:
+                    continue
                 if isinstance(raw_d.columns, pd.MultiIndex):
                     raw_d.columns = raw_d.columns.get_level_values(0)
                 raw_d = raw_d.reset_index()
                 d_col = "Datetime" if "Datetime" in raw_d.columns else "Date"
+                if d_col not in raw_d.columns:
+                    continue
                 daily_df = pd.DataFrame({
                     "timestamp": pd.to_datetime(raw_d[d_col]).dt.tz_localize(None),
                     "open": raw_d["Open"].astype(float),

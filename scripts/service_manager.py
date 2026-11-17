@@ -17,7 +17,13 @@ def is_port_in_use(port: int) -> bool:
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.settimeout(1.0)
-            return s.connect_ex(("127.0.0.1", port)) == 0
+            if s.connect_ex(("127.0.0.1", port)) == 0:
+                return True
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(("127.0.0.1", port))
+            return False
+    except OSError:
+        return True
     except Exception:
         return False
 
