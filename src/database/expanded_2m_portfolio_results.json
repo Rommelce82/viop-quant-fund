@@ -2,7 +2,7 @@
   "metadata": {
     "title": "VİOP v4.2 - 2 Milyon TL Tek Kasa Genişletilmiş Portföy Testi (36 Sözleşme)",
     "initial_capital_try": 2000000.0,
-    "generated_at": "2026-11-09T17:12:28.447884",
+    "generated_at": "2026-11-17T23:41:17.187351",
     "execution_mode": "Unified Shared Margin Pool (2M TL Tek Ortak Kasa)",
     "contract_count": 36,
     "asset_classes": {
@@ -17,101 +17,101 @@
   },
   "in_sample": {
     "initial_capital": 2000000.0,
-    "final_nav": 2907645.04,
-    "trade_net_pnl": 240448.71,
-    "pure_trading_return_pct": 12.02,
-    "ale_net_income": 667204.11,
-    "ale_nema_return_pct": 33.36,
-    "ale_tax_paid": 141528.14,
-    "total_return_pct": 45.38,
-    "total_trades": 711,
-    "winning_trades": 270,
-    "losing_trades": 441,
-    "win_rate_pct": 37.97,
-    "profit_factor": 1.07,
-    "max_drawdown_try": 742995.37,
-    "max_drawdown_pct": 24.15,
-    "total_commissions": 71089.31,
-    "total_slippage": 115787.06,
+    "final_nav": 3014635.78,
+    "trade_net_pnl": 316303.26,
+    "pure_trading_return_pct": 15.82,
+    "ale_net_income": 698340.92,
+    "ale_nema_return_pct": 34.92,
+    "ale_tax_paid": 148132.92,
+    "total_return_pct": 50.73,
+    "total_trades": 701,
+    "winning_trades": 268,
+    "losing_trades": 433,
+    "win_rate_pct": 38.23,
+    "profit_factor": 1.09,
+    "max_drawdown_try": 780635.79,
+    "max_drawdown_pct": 24.26,
+    "total_commissions": 74745.08,
+    "total_slippage": 123191.33,
     "pyramid_count": 7,
     "rejected_margin_count": 53,
     "contract_breakdown": {
       "F_THYAO": {
         "category": "Pay",
         "trades": 29,
-        "net_pnl": -10796.74,
+        "net_pnl": -1525.98,
         "wins": 15,
         "win_rate": 51.7
       },
       "F_AKBNK": {
         "category": "Pay",
         "trades": 30,
-        "net_pnl": -9298.43,
+        "net_pnl": -9168.04,
         "wins": 12,
         "win_rate": 40.0
       },
       "F_GARAN": {
         "category": "Pay",
-        "trades": 30,
-        "net_pnl": 30596.64,
+        "trades": 28,
+        "net_pnl": 31646.26,
         "wins": 10,
-        "win_rate": 33.3
+        "win_rate": 35.7
       },
       "F_ISCTR": {
         "category": "Pay",
-        "trades": 16,
-        "net_pnl": -35900.95,
+        "trades": 17,
+        "net_pnl": -42337.32,
         "wins": 7,
-        "win_rate": 43.8
+        "win_rate": 41.2
       },
       "F_YKBNK": {
         "category": "Pay",
         "trades": 29,
-        "net_pnl": 24070.63,
-        "wins": 13,
-        "win_rate": 44.8
+        "net_pnl": 58294.51,
+        "wins": 12,
+        "win_rate": 41.4
       },
       "F_EREGL": {
         "category": "Pay",
-        "trades": 27,
-        "net_pnl": 80541.14,
-        "wins": 11,
-        "win_rate": 40.7
+        "trades": 29,
+        "net_pnl": 55140.81,
+        "wins": 12,
+        "win_rate": 41.4
       },
       "F_KRDMD": {
         "category": "Pay",
         "trades": 25,
-        "net_pnl": -97611.2,
+        "net_pnl": -101364.96,
         "wins": 8,
         "win_rate": 32.0
       },
       "F_TUPRS": {
         "category": "Pay",
-        "trades": 29,
-        "net_pnl": 167897.68,
+        "trades": 30,
+        "net_pnl": 189925.03,
         "wins": 10,
-        "win_rate": 34.5
+        "win_rate": 33.3
       },
       "F_PETKM": {
         "category": "Pay",
         "trades": 28,
-        "net_pnl": -11625.48,
-        "wins": 9,
-        "win_rate": 32.1
+        "net_pnl": 60000.55,
+        "wins": 10,
+        "win_rate": 35.7
       },
       "F_ASELS": {
         "category": "Pay",
         "trades": 19,
-        "net_pnl": 444217.39,
-        "wins": 12,
-        "win_rate": 63.2
+        "net_pnl": 481482.29,
+        "wins": 13,
+        "win_rate": 68.4
       },
       "F_BIMAS": {
         "category": "Pay",
         "trades": 24,
-        "net_pnl": 77234.11,
-        "wins": 11,
-        "win_rate": 45.8
+        "net_pnl": 103276.41,
+        "wins": 13,
+        "win_rate": 54.2
       },
       "F_EKGYO": {
         "category": "Pay",
@@ -122,17 +122,17 @@
       },
       "F_FROTO": {
         "category": "Pay",
-        "trades": 34,
-        "net_pnl": -56830.66,
+        "trades": 35,
+        "net_pnl": -80097.11,
         "wins": 13,
-        "win_rate": 38.2
+        "win_rate": 37.1
       },
       "F_TOASO": {
         "category": "Pay",
-        "trades": 23,
-        "net_pnl": 91891.44,
+        "trades": 22,
+        "net_pnl": 97935.08,
         "wins": 11,
-        "win_rate": 47.8
+        "win_rate": 50.0
       },
       "F_KCHOL": {
         "category": "Pay",
@@ -151,58 +151,58 @@
       "F_PGSUS": {
         "category": "Pay",
         "trades": 29,
-        "net_pnl": -76095.95,
+        "net_pnl": -87870.23,
         "wins": 13,
         "win_rate": 44.8
       },
       "F_SISE": {
         "category": "Pay",
-        "trades": 27,
-        "net_pnl": 49435.67,
-        "wins": 11,
-        "win_rate": 40.7
+        "trades": 25,
+        "net_pnl": -10181.63,
+        "wins": 9,
+        "win_rate": 36.0
       },
       "F_TCELL": {
         "category": "Pay",
-        "trades": 30,
-        "net_pnl": -53069.42,
+        "trades": 29,
+        "net_pnl": -80311.31,
         "wins": 11,
-        "win_rate": 36.7
+        "win_rate": 37.9
       },
       "F_ARCLK": {
         "category": "Pay",
-        "trades": 25,
-        "net_pnl": 17081.14,
-        "wins": 11,
-        "win_rate": 44.0
+        "trades": 24,
+        "net_pnl": 21746.69,
+        "wins": 10,
+        "win_rate": 41.7
       },
       "F_XU030": {
         "category": "Endeks",
         "trades": 25,
-        "net_pnl": -244258.28,
+        "net_pnl": -207299.03,
         "wins": 7,
         "win_rate": 28.0
       },
       "F_XU100": {
         "category": "Endeks",
-        "trades": 21,
-        "net_pnl": 4140.86,
-        "wins": 7,
-        "win_rate": 33.3
+        "trades": 20,
+        "net_pnl": 5805.49,
+        "wins": 8,
+        "win_rate": 40.0
       },
       "F_XLBNK": {
         "category": "Endeks",
-        "trades": 20,
-        "net_pnl": -21356.46,
+        "trades": 21,
+        "net_pnl": -21415.4,
         "wins": 5,
-        "win_rate": 25.0
+        "win_rate": 23.8
       },
       "F_XUSIN": {
         "category": "Endeks",
         "trades": 24,
-        "net_pnl": 13543.61,
-        "wins": 7,
-        "win_rate": 29.2
+        "net_pnl": 16483.27,
+        "wins": 8,
+        "win_rate": 33.3
       },
       "F_USDTRY": {
         "category": "Döviz",
@@ -248,45 +248,45 @@
       },
       "F_XAUUSD": {
         "category": "Emtia",
-        "trades": 41,
-        "net_pnl": -16084.55,
-        "wins": 16,
-        "win_rate": 39.0
+        "trades": 38,
+        "net_pnl": -26457.54,
+        "wins": 14,
+        "win_rate": 36.8
       },
       "F_XAGUSD": {
         "category": "Emtia",
-        "trades": 21,
-        "net_pnl": 9471.22,
-        "wins": 6,
-        "win_rate": 28.6
+        "trades": 17,
+        "net_pnl": 5970.62,
+        "wins": 5,
+        "win_rate": 29.4
       },
       "F_BRENT": {
         "category": "Emtia",
-        "trades": 27,
-        "net_pnl": -136192.57,
+        "trades": 28,
+        "net_pnl": -140870.58,
         "wins": 8,
-        "win_rate": 29.6
+        "win_rate": 28.6
       },
       "F_PLAT": {
         "category": "Emtia",
         "trades": 25,
-        "net_pnl": -2571.83,
+        "net_pnl": -1787.37,
         "wins": 5,
         "win_rate": 20.0
       },
       "F_COPPER": {
         "category": "Emtia",
         "trades": 12,
-        "net_pnl": -2118.32,
+        "net_pnl": -4415.34,
         "wins": 5,
         "win_rate": 41.7
       },
       "F_GAUTRY": {
         "category": "Emtia",
-        "trades": 41,
-        "net_pnl": 4138.02,
-        "wins": 16,
-        "win_rate": 39.0
+        "trades": 39,
+        "net_pnl": 3698.09,
+        "wins": 14,
+        "win_rate": 35.9
       }
     }
   },

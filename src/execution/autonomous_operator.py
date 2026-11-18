@@ -167,7 +167,12 @@ class AutonomousLiveOperator:
         saved_positions = self.db.get_active_positions()
         if saved_positions:
             self.broker.restore_positions_from_db(saved_positions)
-            logger.info("✓ [RESTART BAŞARILI] Veritabanından %d adet açık pozisyon bellek havuzuna geri yüklendi.", len(saved_positions))
+            unrealized_on_restore = sum(self.broker._get_position_unrealized_pnl(pos) for pos in self.broker.open_positions.values())
+            self.broker.cash_balance = active_capital - unrealized_on_restore
+            logger.info("✓ [RESTART BAŞARILI] Veritabanından %d adet açık pozisyon yüklendi. Nakit dengesi: %.2f TL, Unrealized: %.2f TL, Başlangıç NAV: %.2f TL",
+                        len(saved_positions), self.broker.cash_balance, unrealized_on_restore, self.broker.current_nav)
+        else:
+            self.broker.cash_balance = active_capital
 
         # P0 Çözümü 2: Risk yöneticisi durumunu geri yükle
         if latest_sys:

@@ -234,6 +234,13 @@ class TechnicalExecutioner:
         # Serbest Teminat (Free Margin) Tıraşlaması
         max_lots_by_margin = math.floor(free_margin / initial_margin_per_contract)
 
+        # Kurumsal Risk Kuralı (Single Contract Margin Cap):
+        # Tek bir pozisyon portföy NAV'ının azami %25'i kadar teminat bağlayabilir.
+        # Bu kural, tek bir enstrümanın tüm kasa teminatını rehin almasını ve diğer fırsatları kaçırmasını engeller.
+        max_margin_per_contract = portfolio_nav * 0.25
+        max_lots_by_contract_cap = max(1, math.floor(max_margin_per_contract / initial_margin_per_contract))
+        max_lots_by_margin = min(max_lots_by_margin, max_lots_by_contract_cap)
+
         if max_lots_by_margin <= 0:
             return 0, f"Yetersiz Serbest Teminat: {free_margin:,.2f} TL (Gerekli: {initial_margin_per_contract:,.2f} TL)."
 
