@@ -209,9 +209,22 @@ class TechnicalExecutioner:
         if compass_multiplier <= 0.0:
             return 0, f"Pusula/Volatilite çarpanı sıfır ({compass_multiplier:.2f}). İşlem bloklandı."
 
-        spec = self.config.contracts.get(symbol)
-        multiplier = spec.multiplier if spec else 100.0
-        initial_margin_per_contract = spec.initial_margin_try if spec else 6500.0
+        spec = self.config.contracts.get(symbol) or self.config.contracts.get(symbol.replace("F_", ""))
+        if spec:
+            multiplier = spec.multiplier
+            initial_margin_per_contract = spec.initial_margin_try
+        elif "GAU" in symbol or "XAU" in symbol or "PLAT" in symbol:
+            multiplier = 1.0
+            initial_margin_per_contract = 280.0 if "GAU" in symbol else 7200.0
+        elif "XU" in symbol or "XAG" in symbol:
+            multiplier = 10.0
+            initial_margin_per_contract = 17500.0 if "XU" in symbol else 5800.0
+        elif "TRY" in symbol and not ("GAU" in symbol or "GAG" in symbol):
+            multiplier = 1000.0
+            initial_margin_per_contract = 3600.0
+        else:
+            multiplier = 100.0
+            initial_margin_per_contract = 6500.0
 
         risk_distance = abs(entry_price - stop_price)
         if risk_distance <= 0.0:

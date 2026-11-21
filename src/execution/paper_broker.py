@@ -112,7 +112,7 @@ class PaperBroker:
         """Açık pozisyonların toplam bağlı başlangıç teminatı."""
         total = 0.0
         for pos in self.open_positions.values():
-            spec = self.config.contracts.get(pos.symbol)
+            spec = self.config.contracts.get(pos.symbol) or self.config.contracts.get(pos.symbol.replace("F_", ""))
             im_per_contract = spec.initial_margin_try if spec else 6500.0
             total += abs(pos.lots) * im_per_contract
         return total
@@ -126,8 +126,17 @@ class PaperBroker:
         """Pozisyonun güncel piyasa fiyatı üzerinden gerçekleşmemiş kâr/zararını döner (Mark-to-Market)."""
         if not pos.is_active:
             return 0.0
-        spec = self.config.contracts.get(pos.symbol)
-        mult = spec.multiplier if spec else 100.0
+        spec = self.config.contracts.get(pos.symbol) or self.config.contracts.get(pos.symbol.replace("F_", ""))
+        if spec:
+            mult = spec.multiplier
+        elif "GAU" in pos.symbol or "XAU" in pos.symbol or "PLAT" in pos.symbol:
+            mult = 1.0
+        elif "XU" in pos.symbol or "XAG" in pos.symbol:
+            mult = 10.0
+        elif "TRY" in pos.symbol and not ("GAU" in pos.symbol or "GAG" in pos.symbol):
+            mult = 1000.0
+        else:
+            mult = 100.0
         curr_p = self.market_prices.get(pos.symbol, pos.entry_price)
         if pos.lots > 0:
             return (curr_p - pos.entry_price) * pos.lots * mult

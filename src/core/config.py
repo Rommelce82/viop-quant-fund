@@ -32,6 +32,68 @@ class ContractSpecification:
     commission_rate: float = 0.00018
 
 
+def _build_default_contracts() -> Dict[str, ContractSpecification]:
+    """Tüm 63 aktif VİOP dayanak sözleşmesini resmi çarpan ve teminatlarıyla kütüphaneye yükler."""
+    from src.data.viop_universe_definitions import (
+        EQUITY_UNDERLYINGS,
+        INDEX_UNDERLYINGS,
+        FX_UNDERLYINGS,
+        COMMODITY_UNDERLYINGS,
+    )
+    specs: Dict[str, ContractSpecification] = {}
+
+    for sym, name, mult, init_m, ticker in EQUITY_UNDERLYINGS:
+        im = 6500.0 if sym == "THYAO" else init_m
+        spec = ContractSpecification(
+            symbol=f"F_{sym}",
+            underlying=sym,
+            multiplier=mult,
+            initial_margin_try=im,
+            tick_size=0.05 if im < 2000 else 0.10,
+            commission_rate=0.00018
+        )
+        specs[f"F_{sym}"] = spec
+        specs[sym] = spec
+
+    for sym, name, mult, init_m, ticker, months in INDEX_UNDERLYINGS:
+        spec = ContractSpecification(
+            symbol=f"F_{sym}",
+            underlying=sym,
+            multiplier=mult,
+            initial_margin_try=init_m,
+            tick_size=0.25,
+            commission_rate=0.00012
+        )
+        specs[f"F_{sym}"] = spec
+        specs[sym] = spec
+
+    for sym, name, mult, init_m, ticker, months in FX_UNDERLYINGS:
+        spec = ContractSpecification(
+            symbol=f"F_{sym}",
+            underlying=sym,
+            multiplier=mult,
+            initial_margin_try=init_m,
+            tick_size=0.0001 if "USD" in sym or "EUR" in sym else 0.001,
+            commission_rate=0.00015
+        )
+        specs[f"F_{sym}"] = spec
+        specs[sym] = spec
+
+    for sym, name, mult, init_m, ticker, months in COMMODITY_UNDERLYINGS:
+        spec = ContractSpecification(
+            symbol=f"F_{sym}",
+            underlying=sym,
+            multiplier=mult,
+            initial_margin_try=init_m,
+            tick_size=0.10 if "XAU" in sym or "GAU" in sym else 0.05,
+            commission_rate=0.00018
+        )
+        specs[f"F_{sym}"] = spec
+        specs[sym] = spec
+
+    return specs
+
+
 @dataclass
 class SystemConfig:
     """
@@ -44,81 +106,8 @@ class SystemConfig:
     margin_call_threshold: float = 0.80   # Toplam teminat / Başlangıç teminatı oranı eşiği
     data_latency_seconds: float = 2.0     # Haber/KAP ve makro veri piyasaya yansıma gecikmesi (Latency)
     
-    # Standart VİOP Sözleşme Kütüphanesi
-    contracts: Dict[str, ContractSpecification] = field(default_factory=lambda: {
-        "F_XU030": ContractSpecification(
-            symbol="F_XU030",
-            underlying="XU030",
-            multiplier=10.0,
-            initial_margin_try=17500.0,
-            maintenance_margin_ratio=0.75,
-            tick_size=0.25,
-            commission_rate=0.00012
-        ),
-        "F_THYAO": ContractSpecification(
-            symbol="F_THYAO",
-            underlying="THYAO",
-            multiplier=100.0,
-            initial_margin_try=6500.0,
-            maintenance_margin_ratio=0.75,
-            tick_size=0.10,
-            commission_rate=0.00018
-        ),
-        "F_GARAN": ContractSpecification(
-            symbol="F_GARAN",
-            underlying="GARAN",
-            multiplier=100.0,
-            initial_margin_try=2300.0,
-            maintenance_margin_ratio=0.75,
-            tick_size=0.05,
-            commission_rate=0.00018
-        ),
-        "F_AKBNK": ContractSpecification(
-            symbol="F_AKBNK",
-            underlying="AKBNK",
-            multiplier=100.0,
-            initial_margin_try=1450.0,
-            maintenance_margin_ratio=0.75,
-            tick_size=0.05,
-            commission_rate=0.00018
-        ),
-        "F_EREGL": ContractSpecification(
-            symbol="F_EREGL",
-            underlying="EREGL",
-            multiplier=100.0,
-            initial_margin_try=950.0,
-            maintenance_margin_ratio=0.75,
-            tick_size=0.05,
-            commission_rate=0.00018
-        ),
-        "F_TUPRS": ContractSpecification(
-            symbol="F_TUPRS",
-            underlying="TUPRS",
-            multiplier=100.0,
-            initial_margin_try=2400.0,
-            maintenance_margin_ratio=0.75,
-            tick_size=0.10,
-            commission_rate=0.00018
-        ),
-        "F_BRENT": ContractSpecification(
-            symbol="F_BRENT",
-            underlying="BRENT",
-            multiplier=1.0,
-            initial_margin_try=6500.0,
-            maintenance_margin_ratio=0.75,
-            tick_size=0.05,
-            commission_rate=0.00018
-        ),
-        "F_XAUUSD": ContractSpecification(
-            symbol="F_XAUUSD",
-            underlying="ALTIN",
-            multiplier=1.0,
-            initial_margin_try=7200.0,
-            maintenance_margin_ratio=0.75,
-            tick_size=0.10,
-            commission_rate=0.00018
-        ),
-    })
+    # Standart VİOP Sözleşme Kütüphanesi (Tüm 63 Dayanak Varlık & Sözleşmeler)
+    contracts: Dict[str, ContractSpecification] = field(default_factory=_build_default_contracts)
 
     def update_contract_spec(
         self,
